@@ -1,0 +1,33 @@
+{
+  "name": "cluestr-file-provider",
+  "version": "0.1.0",
+  "author": "Robin Ricard <ricard.robin@gmail.com>",
+  "scripts": {
+    "test": "NODE_ENV=test mocha -R spec test/",
+    "lint": "jshint lib/ test/"
+  },
+  "main": "./lib/cluestr-file-provider",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Papiel/cluestr-file-provider"
+  },
+  "keywords": [
+    "cluestr",
+    "provider"
+  ],
+  "dependencies": {
+    "async": "0.2.x",
+    "restify": "2.6.x",
+    "request": "2.26.x"
+  },
+  "devDependencies": {
+    "mocha": "1.11.x",
+    "should": "1.2.x",
+    "supertest": "0.7.x",
+    "jshint": "2.1.x"
+  },
+  "licence": "MIT License",
+  "engines": {
+    "node": ">=0.10"
+  }
+}

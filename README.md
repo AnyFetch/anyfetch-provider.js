@@ -10,7 +10,7 @@ This toolkit enables you to bridge a given service to the cluestr api by mountin
 
 ## Installation
 
-`npm install cluestr-file-provider`
+`npm install cluestr-provider`
 
 ## Getting started
 
@@ -18,7 +18,7 @@ Here is a simple example :
 
 ```javascript
 // 1. Require
-var Provider = require('cluestr-file-provider');
+var Provider = require('cluestr-provider');
 
 // 2. Create post-hooks functions
 var all = function (uuid) { // Send everything for the first time or again to cluestr

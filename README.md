@@ -78,6 +78,7 @@ Params:
 * `req`: the current request. Access GET values in `req.params`.
 * `next`: call this with the error if any (your provider did not return a code, ...) and your identifier hash.
 
+Example:
 ```javascript
 var connectAccountRetrievePreDatas = function(req, next) {
   next({'datas.accessGrant': accessGrant}, next);
@@ -88,19 +89,57 @@ var connectAccountRetrievePreDatas = function(req, next) {
 This function will be called to retrieve a set of datas to store permanently.
 Store your tokens (refresh tokens, access tokens) or any other informations.
 
+Params:
+* `req`: the current request. Access GET values in `req.params`.
+* `preDatas` datas stored previously, as returned by `initAccount`
+* `next`: call this with the error if any (token is invalid, preDatas are out of date, ...) and the datas to store permanently
+
+Example:
 ```javascript
-var connectAccountRetrieveAuthDatas = function(req, res, preDatas, next) {
-  var datas = preDatas.accessGrant + "_accessToken";
-  next(null, datas, 'http://myprovider.example.org/config');
+var connectAccountRetrieveAuthDatas = function(req, preDatas, next) {
+  var datas = {
+    refreshToken: retrieveRefreshToken()
+  }
+  next(null, datas);
 };
 ```
 
+#### `updateAccount`
+This function will be called periodically to update documents. Calls will occur:
+* when the user ping `/update` on Cluestr API
+* right after connecting the provider for the first time
+* after a span of time, when Cluestr server deems new datas can be gathered.
+
+This function must return a list of task, each task being a document to create or update on Cluestr.
+This tasks will be fed to `queueWorker` (see below).
+
+Params:
+* `datas`: datas stored by `connectAccountRetrieveAuthDatas`
+* `next`: call this with the error if any (grant has been revoked, ...) and the list of tasks to feed to `queueWorker`.
+
+```javascript
 var updateAccount = function(datas, next) {
   // Update the account !
   next();
 };
+```
 
+#### `queueWorker`
+This function will be called with each task returned by `updateAccount`.
+It must send the document to Cluestr using the client available on `task.cluestrClient`.
+
+Params:
+* `task` the task defined previously. A `cluestrClient` key will be added containing a pre-configured client for upload.
+* `cb` call this once document is uploaded and you're ready for another task
+
+```javascript
 var queueWorker = function(task, cb) {
   // Upload document
   cb();
 };
+```
+
+### Optional parameters
+
+* `concurrency` : number of tasks to run simultaneously on `queueWorker`, default is 1.
+* `redirectUrl` : url where the user should be redirected after `connectAccountRetrieveAuthDatas` (on /init/callback)

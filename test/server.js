@@ -2,6 +2,8 @@
 
 var async = require('async');
 
+var ProviderServer = require('../lib/cluestr-provider');
+
 var accessGrant = "dqzknr54dzgd6f5";
 
 var initAccount = function(req, res, next) {
@@ -28,3 +30,15 @@ var updateAccount = function(datas, next) {
 var queueWorker = function(task, cb) {
   // Upload document
 }
+
+var providerServer = ProviderServer.createServer({
+  initAccount: initAccount,
+  connectAccountRetrieveTempToken: connectAccountRetrieveTempToken,
+  connectAccountRetrieveAuthDatas: connectAccountRetrieveAuthDatas,
+  updateAccount: updateAccount,
+  queueWorker: queueWorker,
+
+  cluestrAppId: 'appId',
+  cluestrAppSecret: 'appSecret',
+  connectUrl: 'http://localhost:1337/init/connect'
+});

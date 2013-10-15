@@ -215,7 +215,7 @@ describe("ProviderServer.createServer()", function() {
       var tasks = [{}, {}, {}];
       var counter = 1;
 
-      var updateAccount = function(datas, next) {
+      var updateAccount = function(datas, cursor, next) {
         // Update the account !
         next(null, tasks, new Date());
       };
@@ -249,7 +249,7 @@ describe("ProviderServer.createServer()", function() {
       var tasks = [{}, {}, {}];
       var counter = 1;
 
-      var updateAccount = function(datas, next) {
+      var updateAccount = function(datas, cursor, next) {
         // Update the account !
         next(null, tasks, "newcursor");
       };

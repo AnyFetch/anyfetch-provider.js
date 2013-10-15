@@ -112,15 +112,22 @@ This function will be called periodically to update documents. Calls will occur:
 
 This function must return a list of task, each task being a document to create or update on Cluestr.
 This tasks will be fed to `queueWorker` (see below).
+The function must also return a cursor (for instance, the current date) to remember the state and start upload from this point next time.
 
 Params:
 * `datas`: datas stored by `connectAccountRetrieveAuthDatas`
-* `next`: call this with the error if any (grant has been revoked, ...) and the list of tasks to feed to `queueWorker`.
+* `cursor`: last cursor, or null on first run.
+* `next`: call this with the error if any (grant has been revoked, ...), the list of tasks to feed to `queueWorker` and the new cursor (it will be written after all tasks are processed).
 
 ```javascript
-var updateAccount = function(datas, next) {
+var updateAccount = function(datas, cursor, next) {
   // Update the account !
-  next();
+  var tasks = [
+    { 'url': 'http://...', 'token': '...'},
+    { 'url': 'http://...', 'token': '...'}
+  ];
+
+  next(null, tasks, new Date());
 };
 ```
 

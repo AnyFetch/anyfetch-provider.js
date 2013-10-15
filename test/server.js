@@ -81,105 +81,157 @@ describe("ProviderServer.createServer() config", function() {
 });
 
 describe("ProviderServer.createServer()", function() {
-  beforeEach(cleaner);
 
-  it("should require cluestr code", function(done) {
-    var server = ProviderServer.createServer(config);
+  describe("/init endpoints", function() {
+    beforeEach(cleaner);
 
-    request(server).get('/init/connect')
-      .expect(409)
-      .end(done);
-  });
+    it("should require cluestr code", function(done) {
+      var server = ProviderServer.createServer(config);
 
-  it("should store datas returned by initAccount() in TempToken", function(done) {
-    var initAccount = function(req, res, next) {
-      var preDatas = {
-        "foo": "bar"
+      request(server).get('/init/connect')
+        .expect(409)
+        .end(done);
+    });
+
+    it("should store datas returned by initAccount() in TempToken", function(done) {
+      var initAccount = function(req, res, next) {
+        var preDatas = {
+          "foo": "bar"
+        };
+
+        res.send(204);
+        next(null, preDatas);
       };
 
-      res.send(204);
-      next(null, preDatas);
-    };
+      config.initAccount = initAccount;
 
-    config.initAccount = initAccount;
+      var server = ProviderServer.createServer(config);
 
-    var server = ProviderServer.createServer(config);
-
-    request(server).get('/init/connect?code=cluestr_code')
-      .expect(204)
-      .end(function(err) {
-        if(err) {
-          throw err;
-        }
-
-        TempToken.findOne({'datas.foo': 'bar'}, function(err, tempToken) {
-          if(err) {
-            return done(err);
-          }
-
-          tempToken.should.have.property('cluestrCode', 'cluestr_code');
-
-          done();
-        });
-
-      });
-  });
-
-
-  it("should retrieve datas on TempToken", function(done) {
-    var originalPreDatas = {
-      'key': 'retrieval',
-      'something': 'data'
-    };
-
-    async.series([
-      function(cb) {
-        // Fake a call to /init/connect returned this datas
-        var tempToken = new TempToken({
-          cluestrCode: 'cluestr_token',
-          datas: originalPreDatas
-        });
-
-        tempToken.save(cb);
-      },
-      function(cb) {
-        var connectAccountRetrieveTempToken = function(req, res, TempToken, next) {
-          // Retrieve temp token
-          TempToken.findOne({'datas.key': req.params.code}, next);
-        };
-
-        var connectAccountRetrieveAuthDatas = function(req, res, preDatas, next) {
-          preDatas.should.eql(originalPreDatas);
-          next(null, {
-            'final': 'my-code'
-          });
-        };
-
-        config.connectAccountRetrieveTempToken = connectAccountRetrieveTempToken;
-        config.connectAccountRetrieveAuthDatas = connectAccountRetrieveAuthDatas;
-
-        var server = ProviderServer.createServer(config);
-
-        request(server).get('/init/callback?code=retrieval')
-          .expect(302)
-          .end(function(err) {
+      request(server).get('/init/connect?code=cluestr_code')
+        .expect(204)
+        .end(function(err) {
           if(err) {
             throw err;
           }
 
-          Token.findOne({'datas.final': 'my-code'}, function(err, token) {
+          TempToken.findOne({'datas.foo': 'bar'}, function(err, tempToken) {
             if(err) {
-              return cb(err);
+              return done(err);
             }
 
-            if(!token) {
-              throw new Error("Token should be saved.");
-            }
+            tempToken.should.have.property('cluestrCode', 'cluestr_code');
 
-            cb();
+            done();
           });
+
         });
-      }
-    ], done);
+    });
+
+
+    it("should retrieve datas on TempToken", function(done) {
+      var originalPreDatas = {
+        'key': 'retrieval',
+        'something': 'data'
+      };
+
+      async.series([
+        function(cb) {
+          // Fake a call to /init/connect returned this datas
+          var tempToken = new TempToken({
+            cluestrCode: 'cluestr_token',
+            datas: originalPreDatas
+          });
+
+          tempToken.save(cb);
+        },
+        function(cb) {
+          var connectAccountRetrieveTempToken = function(req, res, TempToken, next) {
+            // Retrieve temp token
+            TempToken.findOne({'datas.key': req.params.code}, next);
+          };
+
+          var connectAccountRetrieveAuthDatas = function(req, res, preDatas, next) {
+            preDatas.should.eql(originalPreDatas);
+            next(null, {
+              'final': 'my-code'
+            });
+          };
+
+          config.connectAccountRetrieveTempToken = connectAccountRetrieveTempToken;
+          config.connectAccountRetrieveAuthDatas = connectAccountRetrieveAuthDatas;
+
+          var server = ProviderServer.createServer(config);
+
+          request(server).get('/init/callback?code=retrieval')
+            .expect(302)
+            .end(function(err) {
+            if(err) {
+              throw err;
+            }
+
+            Token.findOne({'datas.final': 'my-code'}, function(err, token) {
+              if(err) {
+                return cb(err);
+              }
+
+              if(!token) {
+                throw new Error("Token should be saved.");
+              }
+
+              cb();
+            });
+          });
+        }
+      ], done);
+    });
+  });
+
+  describe("/upload endpoint", function() {
+    before(function(done) {
+      // Create a token, as-if /init/ workflow was properly done
+      var token = new Token({
+        cluestrToken: 'thetoken',
+        datas: {
+          foo: 'bar'
+        }
+      });
+
+      token.save(done);
+    });
+
+
+    it("should retrieve tasks and upload them", function(done) {
+
+      var tasks = [{}, {}, {}];
+      var counter = 1;
+
+      var updateAccount = function(datas, next) {
+        // Update the account !
+        next(null, tasks);
+      };
+
+      var queueWorker = function(task, cb) {
+        // Upload document
+        task.should.have.property('cluestrClient');
+
+        counter += 1;
+        if(counter === tasks.length) {
+          done();
+        }
+        cb();
+      };
+
+      config.updateAccount = updateAccount;
+      config.queueWorker = queueWorker;
+
+      var server = ProviderServer.createServer(config);
+
+      request(server).post('/update')
+        .send({
+          access_token: 'thetoken'
+        })
+        .expect(204)
+        .end(function() {});
+    });
   });
 });

@@ -11,11 +11,11 @@ var Token = require('../lib/cluestr-provider/models/token.js');
 
 var accessGrant = "dqzknr54dzgd6f5";
 
-var initAccount = function(req, res, next) {
+var initAccount = function(req, next) {
   var preDatas = {
     accessGrant: accessGrant
   };
-  next(null, preDatas);
+  next(null, preDatas, 'http://localhost');
 };
 
 var connectAccountRetrievePreDatas = function(req, next) {
@@ -94,13 +94,12 @@ describe("ProviderServer.createServer()", function() {
     });
 
     it("should store datas returned by initAccount() in TempToken", function(done) {
-      var initAccount = function(req, res, next) {
+      var initAccount = function(req, next) {
         var preDatas = {
           "foo": "bar"
         };
 
-        res.send(204);
-        next(null, preDatas);
+        next(null, preDatas, 'http://localhost');
       };
 
       config.initAccount = initAccount;
@@ -108,7 +107,7 @@ describe("ProviderServer.createServer()", function() {
       var server = ProviderServer.createServer(config);
 
       request(server).get('/init/connect?code=cluestr_code')
-        .expect(204)
+        .expect(302)
         .end(function(err) {
           if(err) {
             throw err;

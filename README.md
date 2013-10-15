@@ -55,8 +55,7 @@ This function is responsible to store pre-datas (authorization grant, temporary 
 
 Params:
 * `req`: the current request
-* `res`: response to send. Use this to redirect the user to some OAuth confirmation page
-* `next`: call this after filling `res`. First parameter is the error (if you want to abort), second parameter is the datas to store.
+* `next`: call this after filling `res`. First parameter is the error (if you want to abort), second parameter is the datas to store, third parameter the page where the user should be redirected
 
 Example:
 ```javascript
@@ -64,7 +63,9 @@ var initAccount = function(req, res, next) {
   var preDatas = {
     accessGrant: accessGrant
   };
-  next(null, preDatas);
+
+  var redirectUrl = "http://myprovider.example.org/authorize";
+  next(null, preDatas, redirectUrl);
 };
 ```
 

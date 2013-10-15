@@ -3,8 +3,11 @@
 require('should');
 var request = require('supertest');
 
+var async = require('async');
+var cleaner = require('./hooks.js').cleaner;
 var ProviderServer = require('../lib/cluestr-provider');
 var TempToken = require('../lib/cluestr-provider/models/temp-token.js');
+var Token = require('../lib/cluestr-provider/models/token.js');
 
 var accessGrant = "dqzknr54dzgd6f5";
 
@@ -78,6 +81,8 @@ describe("ProviderServer.createServer() config", function() {
 });
 
 describe("ProviderServer.createServer()", function() {
+  beforeEach(cleaner);
+
   it("should require cluestr code", function(done) {
     var server = ProviderServer.createServer(config);
 
@@ -102,7 +107,7 @@ describe("ProviderServer.createServer()", function() {
 
     request(server).get('/init/connect?code=cluestr_code')
       .expect(204)
-      .end(function(err, res) {
+      .end(function(err) {
         if(err) {
           throw err;
         }
@@ -118,5 +123,64 @@ describe("ProviderServer.createServer()", function() {
         });
 
       });
+  });
+
+
+  it("should retrieve datas on TempToken", function(done) {
+    var originalPreDatas = {
+      'key': 'retrieval',
+      'something': 'data'
+    };
+
+    async.series([
+      function(cb) {
+        // Fake a call to /init/connect returned this datas
+        var tempToken = new TempToken({
+          cluestrCode: 'cluestr_token',
+          datas: originalPreDatas
+        });
+
+        tempToken.save(cb);
+      },
+      function(cb) {
+        var connectAccountRetrieveTempToken = function(req, res, TempToken, next) {
+          // Retrieve temp token
+          TempToken.findOne({'datas.key': req.params.code}, next);
+        };
+
+        var connectAccountRetrieveAuthDatas = function(req, res, preDatas, next) {
+          preDatas.should.eql(originalPreDatas);
+          next(null, {
+            'final': 'my-code'
+          });
+        };
+
+        config.connectAccountRetrieveTempToken = connectAccountRetrieveTempToken;
+        config.connectAccountRetrieveAuthDatas = connectAccountRetrieveAuthDatas;
+
+        var server = ProviderServer.createServer(config);
+
+        request(server).get('/init/callback?code=retrieval')
+          .expect(302)
+          .end(function(err) {
+          if(err) {
+            throw err;
+          }
+
+          Token.findOne({'datas.final': 'my-code'}, function(err, token) {
+            if(err) {
+              return cb(err);
+            }
+
+            if(!token) {
+              throw new Error("Token should be saved.");
+            }
+
+            cb();
+          });
+
+        });
+      }
+    ], done);
   });
 });

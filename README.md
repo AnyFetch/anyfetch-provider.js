@@ -94,7 +94,7 @@ Store your tokens (refresh tokens, access tokens) or any other informations.
 Params:
 * `req`: the current request. Access GET values in `req.params`.
 * `preDatas` datas stored previously, as returned by `initAccount`
-* `next`: call this with the error if any (token is invalid, preDatas are out of date, ...) and the datas to store permanently
+* `next`: call this with the error if any (token is invalid, preDatas are out of date, ...) and the datas to store permanently. Third parameter can optionally be the redirect page, if blank it will be `cluestr.com`.
 
 Example:
 ```javascript

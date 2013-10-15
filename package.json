@@ -6,7 +6,7 @@
     "test": "NODE_ENV=test mocha -R spec test/",
     "lint": "jshint lib/ test/"
   },
-  "main": "./lib/cluestr-file-provider",
+  "main": "./lib/cluestr-provider",
   "repository": {
     "type": "git",
     "url": "https://github.com/Papiel/cluestr-provider"

@@ -42,7 +42,7 @@ configHash = {
 configHash = {
    ...
   initAccount: initAccount,
-  connectAccountRetrieveTempToken: connectAccountRetrieveTempToken,
+  connectAccountRetrievePreDatas: connectAccountRetrievePreDatas,
   connectAccountRetrieveAuthDatas: connectAccountRetrieveAuthDatas,
   updateAccount: updateAccount,
   queueWorker: queueWorker,
@@ -67,12 +67,23 @@ var initAccount = function(req, res, next) {
   next(null, preDatas);
 };
 
-#### `connectAccountRetrieveTempToken`
-This function should return 
-var connectAccountRetrieveTempToken = function(req, res, TempToken, next) {
+#### `connectAccountRetrievePreDatas`
+This function should return an object hash uniquely identifying the preDatas previously sent.
+To build this hash, you can use `req` containing all datas about the current request (and possibly a callback code, the previous grant, ... depending on your OAuth provider).
+
+> Please note : for now, you need to prefix each of your key with `data.`. This will probably be modified in the future.
+> For instance `{'datas.accessGrant': req.params.code}`.
+
+Params:
+* `req`: the current request. Access GET values in `req.params`.
+* `next`: call this with your identifier hash.
+
+```javascript
+var connectAccountRetrievePreDatas = function(req, res, TempToken, next) {
   // Retrieve temp token
   TempToken.findOne({'datas.accessGrant': accessGrant}, next);
 };
+```
 
 var connectAccountRetrieveAuthDatas = function(req, res, preDatas, next) {
   var datas = preDatas.accessGrant + "_accessToken";

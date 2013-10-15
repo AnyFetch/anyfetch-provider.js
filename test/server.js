@@ -18,7 +18,7 @@ var initAccount = function(req, res, next) {
   next(null, preDatas);
 };
 
-var connectAccountRetrievePreDatas = function(req, res, next) {
+var connectAccountRetrievePreDatas = function(req, next) {
   // Retrieve temp token
   next(null, {'datas.accessGrant': accessGrant});
 };
@@ -145,7 +145,7 @@ describe("ProviderServer.createServer()", function() {
           tempToken.save(cb);
         },
         function(cb) {
-          var connectAccountRetrievePreDatas = function(req, res, next) {
+          var connectAccountRetrievePreDatas = function(req, next) {
             // Retrieve temp token
             next(null, {'datas.key': req.params.code});
           };

@@ -66,6 +66,7 @@ var initAccount = function(req, res, next) {
   };
   next(null, preDatas);
 };
+```
 
 #### `connectAccountRetrievePreDatas`
 This function should return an object hash uniquely identifying the preDatas previously sent.

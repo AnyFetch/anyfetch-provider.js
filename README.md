@@ -12,16 +12,79 @@ This toolkit enables you to bridge a given service to the cluestr api by mountin
 
 `npm install cluestr-provider`
 
-## Getting started
-
-Here is a simple example :
+Then:
 
 ```javascript
-// 1. Require
-var Provider = require('cluestr-provider');
+// See syntax below
+var server = CluestrProvider.createServer(configHash);
+```
 
-// 2. Create post-hooks functions
-var all = function (uuid) { // Send everything for the first time or again to cluestr
-  // Always send the same thing
+## Configuration hash
+You need to specify some handlers and datas in the `configHash`.
+
+### Datas
+```javascript
+configHash = {
+  cluestrAppId: 'appId',
+  cluestrAppSecret: 'appSecret',
+  connectUrl: 'http://myprovider.example.org/init/connect'
+  ...
 };
 ```
+
+* `cluestrAppId`: application id from Cluestr.
+* `cluestrAppSecret`: application secret from Cluestr.
+* `connectUrl`: redirect_uri registered on Cluestr.
+
+### Handlers
+
+```javascript
+configHash = {
+   ...
+  initAccount: initAccount,
+  connectAccountRetrieveTempToken: connectAccountRetrieveTempToken,
+  connectAccountRetrieveAuthDatas: connectAccountRetrieveAuthDatas,
+  updateAccount: updateAccount,
+  queueWorker: queueWorker,
+};
+```
+
+#### `initAccount`
+Called when connecting an account for the first time.
+This function is responsible to store pre-datas (authorization grant, temporary values) and redirecting to another page.
+
+Params:
+* `req`: the current request
+* `res`: response to send. Use this to redirect the user to some OAuth confirmation page
+* `next`: call this after filling `res`. First parameter is the error (if you want to abort), second parameter is the datas to store.
+
+Example:
+```javascript
+var initAccount = function(req, res, next) {
+  var preDatas = {
+    accessGrant: accessGrant
+  };
+  next(null, preDatas);
+};
+
+#### `connectAccountRetrieveTempToken`
+This function should return 
+var connectAccountRetrieveTempToken = function(req, res, TempToken, next) {
+  // Retrieve temp token
+  TempToken.findOne({'datas.accessGrant': accessGrant}, next);
+};
+
+var connectAccountRetrieveAuthDatas = function(req, res, preDatas, next) {
+  var datas = preDatas.accessGrant + "_accessToken";
+  next(null, datas, 'http://myprovider.example.org/config');
+};
+
+var updateAccount = function(datas, next) {
+  // Update the account !
+  next();
+};
+
+var queueWorker = function(task, cb) {
+  // Upload document
+  cb();
+};

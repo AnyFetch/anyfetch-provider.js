@@ -91,20 +91,18 @@ describe("ProviderServer.createServer()", function() {
       var preDatas = {
         "foo": "bar"
       };
+
+      res.send(204);
       next(null, preDatas);
     };
 
     config.initAccount = initAccount;
 
-    var server = ProviderServer.createServer(initAccount);
+    var server = ProviderServer.createServer(config);
 
-    request(server).get('/init/connect')
-      .send({
-        code: 'cluestr_code'
-      })
-      .expect(200)
+    request(server).get('/init/connect?code=cluestr_code')
+      .expect(204)
       .end(function(err, res) {
-        console.log(res.body);
         if(err) {
           throw err;
         }

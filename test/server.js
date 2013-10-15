@@ -4,7 +4,7 @@ require('should');
 var request = require('supertest');
 
 var async = require('async');
-var cleaner = require('./hooks.js').cleaner;
+var cleaner = require('./cleaner.js');
 var ProviderServer = require('../lib/cluestr-provider');
 var TempToken = require('../lib/cluestr-provider/models/temp-token.js');
 var Token = require('../lib/cluestr-provider/models/token.js');
@@ -18,9 +18,9 @@ var initAccount = function(req, res, next) {
   next(null, preDatas);
 };
 
-var connectAccountRetrieveTempToken = function(req, res, TempToken, next) {
+var connectAccountRetrievePreDatas = function(req, res, next) {
   // Retrieve temp token
-  TempToken.findOne({'datas.accessGrant': accessGrant}, next);
+  next(null, {'datas.accessGrant': accessGrant});
 };
 
 var connectAccountRetrieveAuthDatas = function(req, res, preDatas, next) {
@@ -44,7 +44,7 @@ beforeEach(function() {
   // Reset config to pristine state
   config = {
     initAccount: initAccount,
-    connectAccountRetrieveTempToken: connectAccountRetrieveTempToken,
+    connectAccountRetrievePreDatas: connectAccountRetrievePreDatas,
     connectAccountRetrieveAuthDatas: connectAccountRetrieveAuthDatas,
     updateAccount: updateAccount,
     queueWorker: queueWorker,
@@ -145,9 +145,9 @@ describe("ProviderServer.createServer()", function() {
           tempToken.save(cb);
         },
         function(cb) {
-          var connectAccountRetrieveTempToken = function(req, res, TempToken, next) {
+          var connectAccountRetrievePreDatas = function(req, res, next) {
             // Retrieve temp token
-            TempToken.findOne({'datas.key': req.params.code}, next);
+            next(null, {'datas.key': req.params.code});
           };
 
           var connectAccountRetrieveAuthDatas = function(req, res, preDatas, next) {
@@ -157,7 +157,7 @@ describe("ProviderServer.createServer()", function() {
             });
           };
 
-          config.connectAccountRetrieveTempToken = connectAccountRetrieveTempToken;
+          config.connectAccountRetrievePreDatas = connectAccountRetrievePreDatas;
           config.connectAccountRetrieveAuthDatas = connectAccountRetrieveAuthDatas;
 
           var server = ProviderServer.createServer(config);

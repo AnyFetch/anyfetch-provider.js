@@ -200,6 +200,15 @@ describe("ProviderServer.createServer()", function() {
     });
 
 
+    it("should require access_token to upload", function(done) {
+      var server = ProviderServer.createServer(config);
+
+      request(server).post('/update')
+        .expect(409)
+        .end(done);
+    });
+
+
     it("should retrieve tasks and upload them", function(done) {
 
       var tasks = [{}, {}, {}];

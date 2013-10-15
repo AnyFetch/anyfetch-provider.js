@@ -23,9 +23,9 @@ var connectAccountRetrievePreDatas = function(req, next) {
   next(null, {'datas.accessGrant': accessGrant});
 };
 
-var connectAccountRetrieveAuthDatas = function(req, res, preDatas, next) {
+var connectAccountRetrieveAuthDatas = function(req, preDatas, next) {
   var datas = preDatas.accessGrant + "_accessToken";
-  next(null, datas, 'http://myprovider.example.org/config');
+  next(null, datas);
 };
 
 var updateAccount = function(datas, next) {
@@ -150,7 +150,7 @@ describe("ProviderServer.createServer()", function() {
             next(null, {'datas.key': req.params.code});
           };
 
-          var connectAccountRetrieveAuthDatas = function(req, res, preDatas, next) {
+          var connectAccountRetrieveAuthDatas = function(req, preDatas, next) {
             preDatas.should.eql(originalPreDatas);
             next(null, {
               'final': 'my-code'

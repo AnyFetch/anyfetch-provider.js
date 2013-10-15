@@ -76,19 +76,24 @@ To build this hash, you can use `req` containing all datas about the current req
 
 Params:
 * `req`: the current request. Access GET values in `req.params`.
-* `next`: call this with your identifier hash.
+* `next`: call this with the error if any (your provider did not return a code, ...) and your identifier hash.
 
 ```javascript
-var connectAccountRetrievePreDatas = function(req, res, TempToken, next) {
-  // Retrieve temp token
-  TempToken.findOne({'datas.accessGrant': accessGrant}, next);
+var connectAccountRetrievePreDatas = function(req, next) {
+  next({'datas.accessGrant': accessGrant}, next);
 };
 ```
 
+#### `connectAccountRetrieveAuthDatas`
+This function will be called to retrieve a set of datas to store permanently.
+Store your tokens (refresh tokens, access tokens) or any other informations.
+
+```javascript
 var connectAccountRetrieveAuthDatas = function(req, res, preDatas, next) {
   var datas = preDatas.accessGrant + "_accessToken";
   next(null, datas, 'http://myprovider.example.org/config');
 };
+```
 
 var updateAccount = function(datas, next) {
   // Update the account !

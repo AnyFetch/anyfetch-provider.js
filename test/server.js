@@ -242,5 +242,51 @@ describe("ProviderServer.createServer()", function() {
         .expect(204)
         .end(function() {});
     });
+
+    it("should store cursor once tasks are done", function(done) {
+
+      var tasks = [{}, {}, {}];
+      var counter = 1;
+
+      var updateAccount = function(datas, next) {
+        // Update the account !
+        next(null, tasks, "newcursor");
+      };
+
+      async.waterfall([
+        function(cb) {
+          var queueWorker = function(task, cb2) {
+            // Upload document
+            task.should.have.property('cluestrClient');
+
+            counter += 1;
+            if(counter === tasks.length) {
+              cb(null);
+            }
+            cb2();
+          };
+
+          config.updateAccount = updateAccount;
+          config.queueWorker = queueWorker;
+
+          var server = ProviderServer.createServer(config);
+
+          request(server).post('/update')
+            .send({
+              access_token: 'thetoken'
+            })
+            .expect(204)
+            .end(function() {});
+        },
+        function(cb) {
+          // All tasks done
+          Token.findOne({cluestrToken: 'thetoken'}, cb);
+        },
+        function(token, cb) {
+          token.cursor.should.equal("newcursor");
+          cb();
+        }
+      ], done);
+    });
   });
 });

@@ -187,6 +187,7 @@ describe("ProviderServer.createServer()", function() {
   });
 
   describe("/upload endpoint", function() {
+    before(cleaner);
     before(function(done) {
       // Create a token, as-if /init/ workflow was properly done
       var token = new Token({
@@ -216,7 +217,7 @@ describe("ProviderServer.createServer()", function() {
 
       var updateAccount = function(datas, next) {
         // Update the account !
-        next(null, tasks);
+        next(null, tasks, new Date());
       };
 
       var queueWorker = function(task, cb) {

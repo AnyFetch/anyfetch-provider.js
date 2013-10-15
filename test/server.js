@@ -24,3 +24,7 @@ var connectAccountRetrieveAuthDatas = function(req, res, preDatas, next) {
 var updateAccount = function(datas, next) {
   // Update the account !
 };
+
+var queueWorker = function(task, cb) {
+  // Upload document
+}

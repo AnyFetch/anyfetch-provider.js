@@ -15,30 +15,41 @@ var initAccount = function(req, res, next) {
 
 var connectAccountRetrieveTempToken = function(req, res, TempToken, next) {
   // Retrieve temp token
-  TempToken.findOne({'datas.accessGrant': accessGrant}, cb);
+  TempToken.findOne({'datas.accessGrant': accessGrant}, next);
 };
 
 var connectAccountRetrieveAuthDatas = function(req, res, preDatas, next) {
   var datas = preDatas.accessGrant + "_accessToken";
-  next();
+  next(null, datas);
 };
 
 var updateAccount = function(datas, next) {
   // Update the account !
+  next();
 };
 
 var queueWorker = function(task, cb) {
   // Upload document
-}
+  cb();
+};
 
-var providerServer = ProviderServer.createServer({
-  initAccount: initAccount,
-  connectAccountRetrieveTempToken: connectAccountRetrieveTempToken,
-  connectAccountRetrieveAuthDatas: connectAccountRetrieveAuthDatas,
-  updateAccount: updateAccount,
-  queueWorker: queueWorker,
+describe("ProviderServer.createServer()", function() {
+  it("should validate correct config", function(done) {
+    var ret = ProviderServer.validateConfig({
+      initAccount: initAccount,
+      connectAccountRetrieveTempToken: connectAccountRetrieveTempToken,
+      connectAccountRetrieveAuthDatas: connectAccountRetrieveAuthDatas,
+      updateAccount: updateAccount,
+      queueWorker: queueWorker,
 
-  cluestrAppId: 'appId',
-  cluestrAppSecret: 'appSecret',
-  connectUrl: 'http://localhost:1337/init/connect'
+      cluestrAppId: 'appId',
+      cluestrAppSecret: 'appSecret',
+      connectUrl: 'http://localhost:1337/init/connect'
+    });
+    if(ret) {
+      throw new Error("No error should be returned");
+    }
+
+    done();
+  });
 });

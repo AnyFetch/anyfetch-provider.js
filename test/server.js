@@ -20,3 +20,7 @@ var connectAccountRetrieveAuthDatas = function(req, res, preDatas, next) {
   var datas = preDatas.accessGrant + "_accessToken";
   next();
 };
+
+var updateAccount = function(datas, next) {
+  // Update the account !
+};

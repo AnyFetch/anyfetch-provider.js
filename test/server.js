@@ -1,6 +1,6 @@
 'use strict';
 
-var async = require('async');
+require('should');
 
 var ProviderServer = require('../lib/cluestr-provider');
 
@@ -46,10 +46,37 @@ describe("ProviderServer.createServer()", function() {
       cluestrAppSecret: 'appSecret',
       connectUrl: 'http://localhost:1337/init/connect'
     });
+
     if(ret) {
       throw new Error("No error should be returned");
     }
 
+    done();
+  });
+
+  it("should err on incorrect config", function(done) {
+    ProviderServer.validateConfig({
+      connectAccountRetrieveTempToken: connectAccountRetrieveTempToken,
+      connectAccountRetrieveAuthDatas: connectAccountRetrieveAuthDatas,
+      updateAccount: updateAccount,
+      queueWorker: queueWorker,
+
+      cluestrAppId: 'appId',
+      cluestrAppSecret: 'appSecret',
+      connectUrl: 'http://localhost:1337/init/connect'
+    }).toString().should.include('Specify `initAccount');
+
+    ProviderServer.validateConfig({
+      initAccount: initAccount,
+      connectAccountRetrieveTempToken: connectAccountRetrieveTempToken,
+      connectAccountRetrieveAuthDatas: connectAccountRetrieveAuthDatas,
+      updateAccount: updateAccount,
+      queueWorker: queueWorker,
+
+      cluestrAppSecret: 'appSecret',
+      connectUrl: 'http://localhost:1337/init/connect'
+    }).toString().should.include('Specify `cluestrAppId');
+    
     done();
   });
 });

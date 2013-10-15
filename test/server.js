@@ -25,7 +25,7 @@ var connectAccountRetrieveTempToken = function(req, res, TempToken, next) {
 
 var connectAccountRetrieveAuthDatas = function(req, res, preDatas, next) {
   var datas = preDatas.accessGrant + "_accessToken";
-  next(null, datas);
+  next(null, datas, 'http://myprovider.example.org/config');
 };
 
 var updateAccount = function(datas, next) {
@@ -178,7 +178,6 @@ describe("ProviderServer.createServer()", function() {
 
             cb();
           });
-
         });
       }
     ], done);

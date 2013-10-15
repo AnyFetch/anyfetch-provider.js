@@ -1,8 +1,10 @@
 'use strict';
 
 require('should');
+var request = require('supertest');
 
 var ProviderServer = require('../lib/cluestr-provider');
+var TempToken = require('../lib/cluestr-provider/models/temp-token.js');
 
 var accessGrant = "dqzknr54dzgd6f5";
 
@@ -33,19 +35,27 @@ var queueWorker = function(task, cb) {
   cb();
 };
 
-describe("ProviderServer.createServer()", function() {
-  it("should validate correct config", function(done) {
-    var ret = ProviderServer.validateConfig({
-      initAccount: initAccount,
-      connectAccountRetrieveTempToken: connectAccountRetrieveTempToken,
-      connectAccountRetrieveAuthDatas: connectAccountRetrieveAuthDatas,
-      updateAccount: updateAccount,
-      queueWorker: queueWorker,
+var config = {};
 
-      cluestrAppId: 'appId',
-      cluestrAppSecret: 'appSecret',
-      connectUrl: 'http://localhost:1337/init/connect'
-    });
+beforeEach(function() {
+  // Reset config to pristine state
+  config = {
+    initAccount: initAccount,
+    connectAccountRetrieveTempToken: connectAccountRetrieveTempToken,
+    connectAccountRetrieveAuthDatas: connectAccountRetrieveAuthDatas,
+    updateAccount: updateAccount,
+    queueWorker: queueWorker,
+
+    cluestrAppId: 'appId',
+    cluestrAppSecret: 'appSecret',
+    connectUrl: 'http://localhost:1337/init/connect'
+  };
+});
+
+
+describe("ProviderServer.createServer() config", function() {
+  it("should validate correct config", function(done) {
+    var ret = ProviderServer.validateConfig(config);
 
     if(ret) {
       throw new Error("No error should be returned");
@@ -54,29 +64,61 @@ describe("ProviderServer.createServer()", function() {
     done();
   });
 
-  it("should err on incorrect config", function(done) {
-    ProviderServer.validateConfig({
-      connectAccountRetrieveTempToken: connectAccountRetrieveTempToken,
-      connectAccountRetrieveAuthDatas: connectAccountRetrieveAuthDatas,
-      updateAccount: updateAccount,
-      queueWorker: queueWorker,
-
-      cluestrAppId: 'appId',
-      cluestrAppSecret: 'appSecret',
-      connectUrl: 'http://localhost:1337/init/connect'
-    }).toString().should.include('Specify `initAccount');
-
-    ProviderServer.validateConfig({
-      initAccount: initAccount,
-      connectAccountRetrieveTempToken: connectAccountRetrieveTempToken,
-      connectAccountRetrieveAuthDatas: connectAccountRetrieveAuthDatas,
-      updateAccount: updateAccount,
-      queueWorker: queueWorker,
-
-      cluestrAppSecret: 'appSecret',
-      connectUrl: 'http://localhost:1337/init/connect'
-    }).toString().should.include('Specify `cluestrAppId');
-    
+  it("should err on missing handler", function(done) {
+    delete config.initAccount;
+    ProviderServer.validateConfig(config).toString().should.include('Specify `initAccount');
     done();
+  });
+
+  it("should err on missing parameter", function(done) {
+    delete config.cluestrAppId;
+    ProviderServer.validateConfig(config).toString().should.include('Specify `cluestrAppId');
+    done();
+  });
+});
+
+describe("ProviderServer.createServer()", function() {
+  it("should require cluestr code", function(done) {
+    var server = ProviderServer.createServer(config);
+
+    request(server).get('/init/connect')
+      .expect(409)
+      .end(done);
+  });
+
+  it("should store datas returned by initAccount() in TempToken", function(done) {
+    var initAccount = function(req, res, next) {
+      var preDatas = {
+        "foo": "bar"
+      };
+      next(null, preDatas);
+    };
+
+    config.initAccount = initAccount;
+
+    var server = ProviderServer.createServer(initAccount);
+
+    request(server).get('/init/connect')
+      .send({
+        code: 'cluestr_code'
+      })
+      .expect(200)
+      .end(function(err, res) {
+        console.log(res.body);
+        if(err) {
+          throw err;
+        }
+
+        TempToken.findOne({'datas.foo': 'bar'}, function(err, tempToken) {
+          if(err) {
+            return done(err);
+          }
+
+          tempToken.should.have.property('cluestrCode', 'cluestr_code');
+
+          done();
+        });
+
+      });
   });
 });

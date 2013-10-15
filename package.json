@@ -1,7 +1,7 @@
 {
-  "name": "cluestr-file-provider",
+  "name": "cluestr-provider",
   "version": "0.1.0",
-  "author": "Robin Ricard <ricard.robin@gmail.com>",
+  "author": "Matthieu Bacconnier <matthieu@papiel.fr>",
   "scripts": {
     "test": "NODE_ENV=test mocha -R spec test/",
     "lint": "jshint lib/ test/"
@@ -9,7 +9,7 @@
   "main": "./lib/cluestr-file-provider",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Papiel/cluestr-file-provider"
+    "url": "https://github.com/Papiel/cluestr-provider"
   },
   "keywords": [
     "cluestr",

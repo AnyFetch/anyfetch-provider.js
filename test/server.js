@@ -2,7 +2,7 @@
 
 require('should');
 var request = require('supertest');
-
+var restify = require('restify');
 var async = require('async');
 var cleaner = require('./cleaner.js');
 var ProviderServer = require('../lib/cluestr-provider');
@@ -40,8 +40,7 @@ var queueWorker = function(task, cb) {
 };
 
 var config = {};
-
-beforeEach(function() {
+var resetConfig = function() {
   // Reset config to pristine state
   config = {
     initAccount: initAccount,
@@ -54,10 +53,12 @@ beforeEach(function() {
     cluestrAppSecret: 'appSecret',
     connectUrl: 'http://localhost:1337/init/connect'
   };
-});
+};
 
 
 describe("ProviderServer.createServer() config", function() {
+  beforeEach(resetConfig);
+
   it("should validate correct config", function(done) {
     var ret = ProviderServer.validateConfig(config);
 
@@ -82,6 +83,7 @@ describe("ProviderServer.createServer() config", function() {
 });
 
 describe("ProviderServer.createServer()", function() {
+  beforeEach(resetConfig);
 
   describe("/init endpoints", function() {
     beforeEach(cleaner);
@@ -127,8 +129,22 @@ describe("ProviderServer.createServer()", function() {
         });
     });
 
-
     it("should retrieve datas on TempToken", function(done) {
+      // Fake Cluestr server handling access token scheme
+      process.env.CLUESTR_FRONT = 'http://localhost:1337';
+
+      // Create a fake HTTP server
+      var frontServer = restify.createServer();
+      frontServer.use(restify.acceptParser(frontServer.acceptable));
+      frontServer.use(restify.queryParser());
+      frontServer.use(restify.bodyParser());
+
+      frontServer.post('/oauth/token', function(req, res, next) {
+        res.send({access_token: "fake_access_token"});
+        next();
+      });
+      frontServer.listen(1337);
+
       var originalPreDatas = {
         'key': 'retrieval',
         'something': 'data'

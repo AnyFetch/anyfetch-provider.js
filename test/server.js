@@ -34,7 +34,7 @@ var updateAccount = function(datas, next) {
   next();
 };
 
-var queueWorker = function(task, cb) {
+var queueWorker = function(task, cluestrClient, cb) {
   // Upload document
   cb();
 };
@@ -228,7 +228,7 @@ describe("ProviderServer.createServer()", function() {
 
     it("should retrieve tasks and upload them", function(done) {
 
-      var tasks = [{}, {}, {}];
+      var tasks = [{a:1}, {a:2}, {a:3}];
       var counter = 1;
 
       var updateAccount = function(datas, cursor, next) {
@@ -236,9 +236,10 @@ describe("ProviderServer.createServer()", function() {
         next(null, tasks, new Date());
       };
 
-      var queueWorker = function(task, cb) {
+      var queueWorker = function(task, cluestrClient, cb) {
         // Upload document
-        task.should.have.property('cluestrClient');
+        task.should.have.property('a').within(1, 3);
+        cluestrClient.should.have.property('sendDocument');
 
         counter += 1;
         if(counter === tasks.length) {
@@ -272,10 +273,7 @@ describe("ProviderServer.createServer()", function() {
 
       async.waterfall([
         function(cb) {
-          var queueWorker = function(task, cb2) {
-            // Upload document
-            task.should.have.property('cluestrClient');
-
+          var queueWorker = function(task, cluestrClient, cb2) {
             counter += 1;
             if(counter === tasks.length) {
               cb(null);

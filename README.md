@@ -135,16 +135,17 @@ var updateAccount = function(datas, cursor, next) {
 
 #### `queueWorker`
 This function will be called with each task returned by `updateAccount`.
-It must send the document to Cluestr using the client available on `task.cluestrClient`.
+It must send the document to Cluestr using the client available on `cluestrClient`.
 
 Params:
-* `task` the task defined previously. A `cluestrClient` key will be added containing a pre-configured client for upload.
+* `task` the task defined previously.
+* `cluestrClient` pre-configured client for upload (with appId, appSecret and accessToken)
 * `cb` call this once document is uploaded and you're ready for another task
 
 ```javascript
-var queueWorker = function(task, cb) {
+var queueWorker = function(task, cluestrClient, cb) {
   // Upload document
-  cb();
+  cluestrClient.sendDocument(task, cb);
 };
 ```
 

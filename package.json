@@ -1,6 +1,6 @@
 {
   "name": "cluestr-provider",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "author": "Matthieu Bacconnier <matthieu@papiel.fr>",
   "scripts": {
     "test": "NODE_ENV=test mocha -R spec test/",

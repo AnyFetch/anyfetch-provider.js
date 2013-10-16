@@ -11,6 +11,7 @@ var Token = require('../lib/cluestr-provider/models/token.js');
 
 var accessGrant = "dqzknr54dzgd6f5";
 
+
 var initAccount = function(req, next) {
   var preDatas = {
     accessGrant: accessGrant
@@ -18,7 +19,7 @@ var initAccount = function(req, next) {
   next(null, preDatas, 'http://localhost');
 };
 
-var connectAccountRetrievePreDatas = function(req, next) {
+var connectAccountRetrievePreDatasIdentifier = function(req, next) {
   // Retrieve temp token
   next(null, {'datas.accessGrant': accessGrant});
 };
@@ -44,7 +45,7 @@ beforeEach(function() {
   // Reset config to pristine state
   config = {
     initAccount: initAccount,
-    connectAccountRetrievePreDatas: connectAccountRetrievePreDatas,
+    connectAccountRetrievePreDatasIdentifier: connectAccountRetrievePreDatasIdentifier,
     connectAccountRetrieveAuthDatas: connectAccountRetrieveAuthDatas,
     updateAccount: updateAccount,
     queueWorker: queueWorker,
@@ -144,7 +145,7 @@ describe("ProviderServer.createServer()", function() {
           tempToken.save(cb);
         },
         function(cb) {
-          var connectAccountRetrievePreDatas = function(req, next) {
+          var connectAccountRetrievePreDatasIdentifier = function(req, next) {
             // Retrieve temp token
             next(null, {'datas.key': req.params.code});
           };
@@ -156,7 +157,7 @@ describe("ProviderServer.createServer()", function() {
             });
           };
 
-          config.connectAccountRetrievePreDatas = connectAccountRetrievePreDatas;
+          config.connectAccountRetrievePreDatasIdentifier = connectAccountRetrievePreDatasIdentifier;
           config.connectAccountRetrieveAuthDatas = connectAccountRetrieveAuthDatas;
 
           var server = ProviderServer.createServer(config);

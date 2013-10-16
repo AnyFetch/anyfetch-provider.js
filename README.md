@@ -69,7 +69,7 @@ var initAccount = function(req, res, next) {
 };
 ```
 
-#### `connectAccountRetrievePreDatas`
+#### `connectAccountRetrievePreDatasIdentifier`
 This function should return an object hash uniquely identifying the preDatas previously sent.
 To build this hash, you can use `req` containing all datas about the current request (and possibly a callback code, the previous grant, ... depending on your OAuth provider).
 
@@ -82,7 +82,7 @@ Params:
 
 Example:
 ```javascript
-var connectAccountRetrievePreDatas = function(req, next) {
+var connectAccountRetrievePreDatasIdentifier = function(req, next) {
   next({'datas.accessGrant': accessGrant}, next);
 };
 ```

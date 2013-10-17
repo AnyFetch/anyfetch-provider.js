@@ -220,7 +220,21 @@ describe("ProviderServer.createServer()", function() {
     it("should require access_token to upload", function(done) {
       var server = ProviderServer.createServer(config);
 
-      request(server).post('/update')
+      request(server)
+        .post('/update')
+        .expect(409)
+        .end(done);
+    });
+
+
+    it("should require valide access_token to upload", function(done) {
+      var server = ProviderServer.createServer(config);
+
+      request(server)
+        .post('/update')
+        .send({
+          access_token: 'dummy_access_token'
+        })
         .expect(409)
         .end(done);
     });

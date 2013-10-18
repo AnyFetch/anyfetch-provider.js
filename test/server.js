@@ -227,7 +227,7 @@ describe("ProviderServer.createServer()", function() {
     });
 
 
-    it("should require valide access_token to upload", function(done) {
+    it("should require valid access_token to upload", function(done) {
       var server = ProviderServer.createServer(config);
 
       request(server)
@@ -316,6 +316,71 @@ describe("ProviderServer.createServer()", function() {
           cb();
         }
       ], done);
+    });
+  });
+
+  describe("/reset endpoint", function() {
+    before(cleaner);
+    before(function(done) {
+      // Create a token, as-if /init/ workflow was properly done
+      var token = new Token({
+        cluestrToken: 'thetoken',
+        datas: {
+          foo: 'bar'
+        },
+        cursor: 'current-cursor'
+      });
+
+      token.save(done);
+    });
+
+
+    it("should require access_token to reset", function(done) {
+      var server = ProviderServer.createServer(config);
+
+      request(server)
+        .post('/reset')
+        .expect(409)
+        .end(done);
+    });
+
+    it("should require valid access_token to reset", function(done) {
+      var server = ProviderServer.createServer(config);
+
+      request(server)
+        .post('/reset')
+        .send({
+          access_token: 'dummy_access_token'
+        })
+        .expect(409)
+        .end(done);
+    });
+
+
+    it("should reset account", function(done) {
+      var server = ProviderServer.createServer(config);
+
+      request(server)
+        .post('/reset')
+        .send({
+          access_token: 'thetoken'
+        })
+        .expect(204)
+        .end(function(err) {
+          if(err) {
+            throw err;
+          }
+
+          Token.findOne({cluestrToken: 'thetoken'}, function(err, token) {
+            if(err) {
+              throw err;
+            }
+
+            token.should.have.property('cursor', null);
+
+            done();
+          });
+        });
     });
   });
 });

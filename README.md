@@ -162,7 +162,13 @@ For instance:
 ```javascript
 var server = CluestrProvider.createServer(configHash);
 server.post('/delta', function(req, res, next) {
-  
+  CluestrProvider.retrieveDatas({'datas.account_id': req.params.account_id}, function(err, datas) {
+    ...
+});
 })
 ```
 
+## Helper functions
+### `retrieveDatas(hash, function(err, datas))`
+Retrieve datas associated with the `hash`. `hash` must be a unique identifier in all account.
+You'll need to prefix the key with `datas.` to search in your datas.

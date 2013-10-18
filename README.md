@@ -153,3 +153,16 @@ var queueWorker = function(task, cluestrClient, cb) {
 
 * `concurrency` : number of tasks to run simultaneously on `queueWorker`, default is 1.
 * `redirectUrl` : url where the user should be redirected after `connectAccountRetrieveAuthDatas` (on /init/callback)
+
+## Register additional endpoints
+Sometimes, you'll need to define additional endpoints -- for example to receive push notifications from your provider.
+To do so, you can simply plug new routes onto the `server` object. Behind the scenes, it is a simple customised `restify` server.
+
+For instance:
+```javascript
+var server = CluestrProvider.createServer(configHash);
+server.post('/delta', function(req, res, next) {
+  
+})
+```
+

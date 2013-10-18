@@ -82,6 +82,7 @@ describe("ProviderServer.createServer() config", function() {
   });
 });
 
+
 describe("ProviderServer.createServer()", function() {
   beforeEach(resetConfig);
 
@@ -382,5 +383,48 @@ describe("ProviderServer.createServer()", function() {
           });
         });
     });
+  });
+});
+
+
+
+describe("Helper functions", function () {
+  beforeEach(cleaner);
+  it("should give access to retrieveDatas()", function(done) {
+    async.series([
+      function(cb) {
+        // Create a token, as-if /init/ workflow was properly done
+        var token = new Token({
+          cluestrToken: 'thetoken',
+          datas: {
+            token: 'unique',
+            foo: 'bar'
+          }
+        });
+
+        token.save(cb);
+      },
+      function(cb) {
+        ProviderServer.retrieveDatas({cluestrToken: 'thetoken'}, function(err, datas) {
+          if(err) {
+            throw err;
+          }
+
+          datas.should.have.property('foo', 'bar');
+          cb();
+        });
+      },
+      function(cb) {
+        ProviderServer.retrieveDatas({'datas.token': 'unique'}, function(err, datas) {
+          if(err) {
+            throw err;
+          }
+
+          datas.should.have.property('foo', 'bar');
+
+          cb();
+        });
+      }
+    ], done);
   });
 });

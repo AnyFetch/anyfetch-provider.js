@@ -206,8 +206,8 @@ frontServer.listen(1338);
 
 You can enable debug mode by specifying `true` as first parameter.
 
-### `debug.Token`
-Token Mongoose model.
+### `debug.createToken`
+Create a Token Mongoose model.
 
-### `debug.TempToken`
-TempToken Mongoose model.
+### `debug.createTempToken`
+Create TempToken Mongoose model.

@@ -135,7 +135,7 @@ describe("ProviderServer.createServer()", function() {
       process.env.CLUESTR_FRONT = 'http://localhost:1337';
 
       // Create a fake HTTP server
-      var frontServer = ProviderServer.createTestFrontServer();
+      var frontServer = ProviderServer.debug.createTestFrontServer();
       frontServer.listen(1337);
 
       var originalPreDatas = {

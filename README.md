@@ -187,6 +187,8 @@ var frontServer = ProviderServer.createTestFrontServer();
 frontServer.listen(1337);
 ```
 
+You can enable debug mode by specifyung `true` as first parameter.
+
 ### `createTestApiServer`
 Create a mock server for your test, to upload documents and file.
 Will provide `/providers/document` (post and delete) and `/providers/document/file`.
@@ -200,3 +202,5 @@ process.env.CLUESTR_SERVER = 'http://localhost:1338';
 var frontServer = ProviderServer.createTestApiServer();
 frontServer.listen(1338);
 ```
+
+You can enable debug mode by specifyung `true` as first parameter.

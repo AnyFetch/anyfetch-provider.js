@@ -172,3 +172,31 @@ server.post('/delta', function(req, res, next) {
 ### `retrieveDatas(hash, function(err, datas))`
 Retrieve datas associated with the `hash`. `hash` must be a unique identifier in all account.
 You'll need to prefix the key with `datas.` to search in your datas.
+
+### `createTestFrontServer()`
+Create a mock server for your test, to trade authorization grants.
+Will always return an `access_token` with value `fake_access_token`.
+Use with `process.env.CLUESTR_FRONT`, for instance:
+
+```javascript
+var ProviderServer = require('cluestr-provider');
+process.env.CLUESTR_FRONT = 'http://localhost:1337';
+
+// Create a fake HTTP server
+var frontServer = ProviderServer.createTestFrontServer();
+frontServer.listen(1337);
+```
+
+### `createTestApiServer`
+Create a mock server for your test, to upload documents and file.
+Will provide `/providers/document` (post and delete) and `/providers/document/file`.
+Use with `process.env.CLUESTR_SERVER`, for instance:
+
+```javascript
+var ProviderServer = require('cluestr-provider');
+process.env.CLUESTR_SERVER = 'http://localhost:1338';
+
+// Create a fake HTTP server
+var frontServer = ProviderServer.createTestApiServer();
+frontServer.listen(1338);
+```

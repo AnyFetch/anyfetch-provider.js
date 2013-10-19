@@ -195,7 +195,7 @@ describe("ProviderServer.createServer()", function() {
     });
   });
 
-  describe("/upload endpoint", function() {
+  describe("/update endpoint", function() {
     before(cleaner);
     before(function(done) {
       // Create a token, as-if /init/ workflow was properly done
@@ -210,7 +210,7 @@ describe("ProviderServer.createServer()", function() {
     });
 
 
-    it("should require access_token to upload", function(done) {
+    it("should require access_token to update", function(done) {
       var server = ProviderServer.createServer(config);
 
       request(server)
@@ -220,7 +220,7 @@ describe("ProviderServer.createServer()", function() {
     });
 
 
-    it("should require valid access_token to upload", function(done) {
+    it("should require valid access_token to update", function(done) {
       var server = ProviderServer.createServer(config);
 
       request(server)

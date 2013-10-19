@@ -140,10 +140,11 @@ It must send the document to Cluestr using the client available on `cluestrClien
 Params:
 * `task` the task defined previously.
 * `cluestrClient` pre-configured client for upload (with appId, appSecret and accessToken)
+* `datas` datas for the account being updated
 * `cb` call this once document is uploaded and you're ready for another task
 
 ```javascript
-var queueWorker = function(task, cluestrClient, cb) {
+var queueWorker = function(task, cluestrClient, datas, cb) {
   // Upload document
   cluestrClient.sendDocument(task, cb);
 };

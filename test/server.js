@@ -34,7 +34,7 @@ var updateAccount = function(datas, next) {
   next();
 };
 
-var queueWorker = function(task, cluestrClient, cb) {
+var queueWorker = function(task, cluestrClient, datas, cb) {
   // Upload document
   cb();
 };
@@ -243,10 +243,11 @@ describe("ProviderServer.createServer()", function() {
         next(null, tasks, new Date());
       };
 
-      var queueWorker = function(task, cluestrClient, cb) {
+      var queueWorker = function(task, cluestrClient, datas, cb) {
         // Upload document
         task.should.have.property('a').within(1, 3);
         cluestrClient.should.have.property('sendDocument');
+        datas.should.have.property('foo', 'bar');
 
         counter += 1;
         if(counter === tasks.length) {
@@ -280,7 +281,7 @@ describe("ProviderServer.createServer()", function() {
 
       async.waterfall([
         function(cb) {
-          var queueWorker = function(task, cluestrClient, cb2) {
+          var queueWorker = function(task, cluestrClient, datas, cb2) {
             counter += 1;
             if(counter === tasks.length) {
               cb(null);

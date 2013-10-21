@@ -206,6 +206,9 @@ frontServer.listen(1338);
 
 You can enable debug mode by specifying `true` as first parameter.
 
+### `debug.cleanTokens`
+Crean all token and temp tokens, use as `before()` for Mocha tests.
+
 ### `debug.createToken`
 Create a Token Mongoose model.
 

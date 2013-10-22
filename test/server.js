@@ -2,7 +2,6 @@
 
 require('should');
 var request = require('supertest');
-var restify = require('restify');
 var async = require('async');
 var cleaner = require('./cleaner.js');
 var ProviderServer = require('../lib/cluestr-provider');
@@ -29,9 +28,9 @@ var connectAccountRetrieveAuthDatas = function(req, preDatas, next) {
   next(null, datas);
 };
 
-var updateAccount = function(datas, next) {
+var updateAccount = function(datas, cursor, next) {
   // Update the account !
-  next();
+  next([], new Date());
 };
 
 var queueWorker = function(task, cluestrClient, datas, cb) {
@@ -196,8 +195,8 @@ describe("ProviderServer.createServer()", function() {
   });
 
   describe("/update endpoint", function() {
-    before(cleaner);
-    before(function(done) {
+    beforeEach(cleaner);
+    beforeEach(function(done) {
       // Create a token, as-if /init/ workflow was properly done
       var token = new Token({
         cluestrToken: 'thetoken',
@@ -230,6 +229,31 @@ describe("ProviderServer.createServer()", function() {
         })
         .expect(409)
         .end(done);
+    });
+
+
+    it("should disable updating while updating", function(done) {
+      var server = ProviderServer.createServer(config);
+
+      request(server)
+        .post('/update')
+        .send({
+          access_token: 'thetoken'
+        })
+        .expect(202)
+        .end(function(err) {
+          if(err) {
+            throw err;
+          }
+
+          request(server)
+            .post('/update')
+            .send({
+              access_token: 'thetoken'
+            })
+            .expect(204)
+            .end(done);
+        });
     });
 
 
@@ -298,8 +322,12 @@ describe("ProviderServer.createServer()", function() {
             .send({
               access_token: 'thetoken'
             })
-            .expect(204)
-            .end(function() {});
+            .expect(202)
+            .end(function(err) {
+              if(err) {
+                throw err;
+              }
+            });
         },
         function(cb) {
           // All tasks done

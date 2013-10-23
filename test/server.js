@@ -335,6 +335,7 @@ describe("ProviderServer.createServer()", function() {
         },
         function(token, cb) {
           token.cursor.should.equal("newcursor");
+          token.isUpdating.should.equal(false);
           cb();
         }
       ], done);

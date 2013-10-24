@@ -293,6 +293,67 @@ describe("ProviderServer.createServer()", function() {
         .end(function() {});
     });
 
+    it("should allow to send task in multiple batches", function(done) {
+
+      var tasks1 = [1,2,3];
+      var tasks2 = [4, 5];
+      var counter = 1;
+
+      var updateAccount = function(datas, cursor, next) {
+        // Send first batch
+        next(null, tasks1);
+        async.nextTick(function() {
+          next(null, tasks2, new Date());
+        });
+      };
+
+      var queueWorker = function(task, cluestrClient, datas, cb) {
+        counter += 1;
+        if(counter === tasks1.length + tasks2.length) {
+          done();
+        }
+        cb();
+      };
+
+      config.updateAccount = updateAccount;
+      config.queueWorker = queueWorker;
+
+      var server = ProviderServer.createServer(config);
+
+      request(server).post('/update')
+        .send({
+          access_token: 'thetoken'
+        })
+        .expect(204)
+        .end(function() {});
+    });
+
+    it("should forbid to send task after a newcursor", function(done) {
+      var updateAccount = function(datas, cursor, next) {
+        // Send first batch with a cursor
+        next(null, [1,2,3], new Date());
+        // Second batch should be refused
+        try {
+          next(null, [4, 5], new Date());
+        } catch(e) {
+          return done();
+        }
+
+        throw new Error("Second batch has been accepted.");
+      };
+
+      config.updateAccount = updateAccount;
+
+      var server = ProviderServer.createServer(config);
+
+      request(server).post('/update')
+        .send({
+          access_token: 'thetoken'
+        })
+        .expect(204)
+        .end(function() {});
+    });
+
     it("should store cursor once tasks are done", function(done) {
 
       var tasks = [{}, {}, {}];
@@ -308,8 +369,9 @@ describe("ProviderServer.createServer()", function() {
           var queueWorker = function(task, cluestrClient, datas, cb2) {
             counter += 1;
             if(counter === tasks.length) {
-              cb(null);
+              async.nextTick(cb);
             }
+
             cb2();
           };
 
@@ -328,6 +390,10 @@ describe("ProviderServer.createServer()", function() {
                 throw err;
               }
             });
+        },
+        function(cb) {
+          // Finish writing onto Mongo
+          async.nextTick(cb);
         },
         function(cb) {
           // All tasks done

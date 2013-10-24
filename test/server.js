@@ -195,6 +195,23 @@ describe("ProviderServer.createServer()", function() {
   });
 
   describe("/update endpoint", function() {
+    var updateServer = function(server, done) {
+      if(!done) {
+        done = function(err) {
+          if(err) {
+            throw err;
+          }
+        };
+      }
+
+      request(server).post('/update')
+        .send({
+          access_token: 'thetoken'
+        })
+        .expect(202)
+        .end(done);
+    };
+
     beforeEach(cleaner);
     beforeEach(function(done) {
       // Create a token, as-if /init/ workflow was properly done
@@ -235,25 +252,19 @@ describe("ProviderServer.createServer()", function() {
     it("should disable updating while updating", function(done) {
       var server = ProviderServer.createServer(config);
 
-      request(server)
-        .post('/update')
-        .send({
-          access_token: 'thetoken'
-        })
-        .expect(202)
-        .end(function(err) {
-          if(err) {
-            throw err;
-          }
+      updateServer(server, function(err) {
+        if(err) {
+          throw err;
+        }
 
-          request(server)
-            .post('/update')
-            .send({
-              access_token: 'thetoken'
-            })
-            .expect(204)
-            .end(done);
-        });
+        request(server)
+          .post('/update')
+          .send({
+            access_token: 'thetoken'
+          })
+          .expect(204)
+          .end(done);
+      });
     });
 
 
@@ -284,13 +295,7 @@ describe("ProviderServer.createServer()", function() {
       config.queueWorker = queueWorker;
 
       var server = ProviderServer.createServer(config);
-
-      request(server).post('/update')
-        .send({
-          access_token: 'thetoken'
-        })
-        .expect(204)
-        .end(function() {});
+      updateServer(server);
     });
 
     it("should allow to send task in multiple batches", function(done) {
@@ -319,13 +324,7 @@ describe("ProviderServer.createServer()", function() {
       config.queueWorker = queueWorker;
 
       var server = ProviderServer.createServer(config);
-
-      request(server).post('/update')
-        .send({
-          access_token: 'thetoken'
-        })
-        .expect(204)
-        .end(function() {});
+      updateServer(server);
     });
 
     it("should forbid to send task after a newcursor", function(done) {
@@ -345,13 +344,7 @@ describe("ProviderServer.createServer()", function() {
       config.updateAccount = updateAccount;
 
       var server = ProviderServer.createServer(config);
-
-      request(server).post('/update')
-        .send({
-          access_token: 'thetoken'
-        })
-        .expect(204)
-        .end(function() {});
+      updateServer(server);
     });
 
     it("should store cursor once tasks are done", function(done) {
@@ -379,17 +372,7 @@ describe("ProviderServer.createServer()", function() {
           config.queueWorker = queueWorker;
 
           var server = ProviderServer.createServer(config);
-
-          request(server).post('/update')
-            .send({
-              access_token: 'thetoken'
-            })
-            .expect(202)
-            .end(function(err) {
-              if(err) {
-                throw err;
-              }
-            });
+          updateServer(server);
         },
         function(cb) {
           // Finish writing onto Mongo

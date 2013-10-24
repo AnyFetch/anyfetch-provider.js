@@ -116,6 +116,8 @@ This function must return a list of task, each task being a document to create o
 This tasks will be fed to `queueWorker` (see below).
 The function must also return a cursor (for instance, the current date) to remember the state and start upload from this point next time.
 
+Sometimes, to send big chunks of datas, you may need to send a first batch of tasks. To do this, just call `next` with an error and an array (without a new cursor). You can do this as many time as you like, once you're done just call next with the new cursor as third parameter.
+
 Params:
 * `datas`: datas stored by `connectAccountRetrieveAuthDatas`
 * `cursor`: last cursor, or null on first run.
@@ -130,6 +132,20 @@ var updateAccount = function(datas, cursor, next) {
   ];
 
   next(null, tasks, new Date());
+};
+
+// Or, for big tasks (multiple gigabytes of datas / asynchronous retrieval of tasks /...)
+var updateAccount = function(datas, cursor, next) {
+  // Update the account !
+  var tasks1 = [...];
+  next(null, tasks1);
+
+    var tasks2 = [...];
+  next(null, tasks2);
+
+    var tasks3 = [...];
+  next(null, tasks3, new Date());
+  // Warning; once a call to next with a new cursor has been made, you can't queue anymore.
 };
 ```
 

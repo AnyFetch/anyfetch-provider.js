@@ -354,9 +354,17 @@ describe("ProviderServer.createServer()", function() {
           if(err) {
             throw err;
           }
-          
-          // Update the account !
-          next(null, tasks, new Date());
+
+          Token.findOne({cluestrToken: 'thetoken'}, function(err, token) {
+            if(err) {
+              throw err;
+            }
+
+            token.should.have.property('datas');
+            token.datas.should.have.property('newKey', 'newValue');
+
+            next(null, tasks, new Date());
+          });
         });
       };
 

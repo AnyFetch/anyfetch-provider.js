@@ -267,7 +267,6 @@ describe("ProviderServer.createServer()", function() {
       });
     });
 
-
     it("should retrieve tasks and upload them", function(done) {
 
       var tasks = [{a:1}, {a:2}, {a:3}];
@@ -299,7 +298,6 @@ describe("ProviderServer.createServer()", function() {
     });
 
     it("should allow to send task in multiple batches", function(done) {
-
       var tasks1 = [1,2,3];
       var tasks2 = [4, 5];
       var counter = 1;
@@ -347,8 +345,37 @@ describe("ProviderServer.createServer()", function() {
       updateServer(server);
     });
 
-    it("should store cursor once tasks are done", function(done) {
+    it("should allow to update token datas", function(done) {
+      var tasks = [{}];
 
+      var updateAccount = function(datas, cursor, next, updateDatas) {
+        datas.newKey = 'newValue';
+        updateDatas(datas, function(err) {
+          if(err) {
+            throw err;
+          }
+          
+          // Update the account !
+          next(null, tasks, new Date());
+        });
+      };
+
+      var queueWorker = function(task, cluestrClient, datas, cb) {
+        // Upload document
+        datas.should.have.property('newKey', 'newValue');
+
+        done();
+        cb();
+      };
+
+      config.updateAccount = updateAccount;
+      config.queueWorker = queueWorker;
+
+      var server = ProviderServer.createServer(config);
+      updateServer(server);
+    });
+
+    it("should store cursor once tasks are done", function(done) {
       var tasks = [{}, {}, {}];
       var counter = 1;
 

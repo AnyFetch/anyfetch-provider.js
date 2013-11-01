@@ -268,6 +268,28 @@ describe("CluestrProvider.createServer()", function() {
       });
     });
 
+    it("should only allow array for tasks", function(done) {
+
+      var tasks = {a:3};
+
+      var updateAccount = function(datas, cursor, next) {
+        // Update the account !
+        try {
+          next(null, tasks, new Date());
+        } catch(e) {
+          e.toString().should.include('array');
+          return done();
+        }
+
+        done(new Error("accepted non array tasks."));
+      };
+
+      config.updateAccount = updateAccount;
+
+      var server = CluestrProvider.createServer(config);
+      updateServer(server);
+    });
+
     it("should retrieve tasks and upload them", function(done) {
 
       var tasks = [{a:1}, {a:2}, {a:3}];

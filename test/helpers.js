@@ -2,7 +2,6 @@
 require('should');
 
 var CluestrProvider = require('../lib/cluestr-provider');
-var Token = require('../lib/cluestr-provider/models/token.js');
 
 
 describe("Helper functions", function () {
@@ -10,15 +9,13 @@ describe("Helper functions", function () {
     beforeEach(CluestrProvider.debug.cleanTokens);
     beforeEach(function(done) {
       // Create a token, as-if /init/ workflow was properly done
-      var token = new Token({
+      CluestrProvider.debug.createToken({
         cluestrToken: 'thetoken',
         datas: {
           token: 'unique',
           foo: 'bar'
         }
-      });
-
-      token.save(done);
+      }, done);
     });
 
     it("should retrieve with code", function(done) {

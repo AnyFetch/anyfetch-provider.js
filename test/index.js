@@ -9,7 +9,7 @@ var CluestrProvider = require('../lib/cluestr-provider');
 var TempToken = require('../lib/cluestr-provider/models/temp-token.js');
 var Token = require('../lib/cluestr-provider/models/token.js');
 
-var accessGrant = "dqzknr54dzgd6f5";
+var accessGrant = "fakeAccessGrant";
 
 
 var initAccount = function(req, next) {

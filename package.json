@@ -4,7 +4,11 @@
   "author": "Matthieu Bacconnier <matthieu@papiel.fr>",
   "scripts": {
     "test": "NODE_ENV=test mocha -R spec test/",
-    "lint": "jshint lib/ test/"
+    "lint": "jshint lib/ test/",
+    "blanket": {
+      "pattern": "lib",
+      "data-cover-never": "node_modules"
+    }
   },
   "main": "./lib/cluestr-provider",
   "repository": {

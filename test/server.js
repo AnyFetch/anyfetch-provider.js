@@ -3,8 +3,9 @@
 require('should');
 var request = require('supertest');
 var async = require('async');
-var cleaner = require('./cleaner.js');
-var ProviderServer = require('../lib/cluestr-provider');
+var Cluestr = require('cluestr');
+
+var CluestrProvider = require('../lib/cluestr-provider');
 var TempToken = require('../lib/cluestr-provider/models/temp-token.js');
 var Token = require('../lib/cluestr-provider/models/token.js');
 
@@ -55,11 +56,11 @@ var resetConfig = function() {
 };
 
 
-describe("ProviderServer.createServer() config", function() {
+describe("CluestrProvider.createServer() config", function() {
   beforeEach(resetConfig);
 
   it("should validate correct config", function(done) {
-    var ret = ProviderServer.validateConfig(config);
+    var ret = CluestrProvider.validateConfig(config);
 
     if(ret) {
       throw new Error("No error should be returned");
@@ -70,26 +71,26 @@ describe("ProviderServer.createServer() config", function() {
 
   it("should err on missing handler", function(done) {
     delete config.initAccount;
-    ProviderServer.validateConfig(config).toString().should.include('Specify `initAccount');
+    CluestrProvider.validateConfig(config).toString().should.include('Specify `initAccount');
     done();
   });
 
   it("should err on missing parameter", function(done) {
     delete config.cluestrAppId;
-    ProviderServer.validateConfig(config).toString().should.include('Specify `cluestrAppId');
+    CluestrProvider.validateConfig(config).toString().should.include('Specify `cluestrAppId');
     done();
   });
 });
 
 
-describe("ProviderServer.createServer()", function() {
+describe("CluestrProvider.createServer()", function() {
   beforeEach(resetConfig);
 
   describe("/init endpoints", function() {
-    beforeEach(cleaner);
+    beforeEach(CluestrProvider.debug.cleanTokens);
 
     it("should require cluestr code", function(done) {
-      var server = ProviderServer.createServer(config);
+      var server = CluestrProvider.createServer(config);
 
       request(server).get('/init/connect')
         .expect(409)
@@ -107,7 +108,7 @@ describe("ProviderServer.createServer()", function() {
 
       config.initAccount = initAccount;
 
-      var server = ProviderServer.createServer(config);
+      var server = CluestrProvider.createServer(config);
 
       request(server).get('/init/connect?code=cluestr_code')
         .expect(302)
@@ -134,7 +135,7 @@ describe("ProviderServer.createServer()", function() {
       process.env.CLUESTR_FRONT = 'http://localhost:1337';
 
       // Create a fake HTTP server
-      var frontServer = ProviderServer.debug.createTestFrontServer();
+      var frontServer = Cluestr.debug.createTestFrontServer();
       frontServer.listen(1337);
 
       var originalPreDatas = {
@@ -168,7 +169,7 @@ describe("ProviderServer.createServer()", function() {
           config.connectAccountRetrievePreDatasIdentifier = connectAccountRetrievePreDatasIdentifier;
           config.connectAccountRetrieveAuthDatas = connectAccountRetrieveAuthDatas;
 
-          var server = ProviderServer.createServer(config);
+          var server = CluestrProvider.createServer(config);
 
           request(server).get('/init/callback?code=retrieval')
             .expect(302)
@@ -212,7 +213,7 @@ describe("ProviderServer.createServer()", function() {
         .end(done);
     };
 
-    beforeEach(cleaner);
+    beforeEach(CluestrProvider.debug.cleanTokens);
     beforeEach(function(done) {
       // Create a token, as-if /init/ workflow was properly done
       var token = new Token({
@@ -227,7 +228,7 @@ describe("ProviderServer.createServer()", function() {
 
 
     it("should require access_token to update", function(done) {
-      var server = ProviderServer.createServer(config);
+      var server = CluestrProvider.createServer(config);
 
       request(server)
         .post('/update')
@@ -237,7 +238,7 @@ describe("ProviderServer.createServer()", function() {
 
 
     it("should require valid access_token to update", function(done) {
-      var server = ProviderServer.createServer(config);
+      var server = CluestrProvider.createServer(config);
 
       request(server)
         .post('/update')
@@ -250,7 +251,7 @@ describe("ProviderServer.createServer()", function() {
 
 
     it("should disable updating while updating", function(done) {
-      var server = ProviderServer.createServer(config);
+      var server = CluestrProvider.createServer(config);
 
       updateServer(server, function(err) {
         if(err) {
@@ -293,7 +294,7 @@ describe("ProviderServer.createServer()", function() {
       config.updateAccount = updateAccount;
       config.queueWorker = queueWorker;
 
-      var server = ProviderServer.createServer(config);
+      var server = CluestrProvider.createServer(config);
       updateServer(server);
     });
 
@@ -321,7 +322,7 @@ describe("ProviderServer.createServer()", function() {
       config.updateAccount = updateAccount;
       config.queueWorker = queueWorker;
 
-      var server = ProviderServer.createServer(config);
+      var server = CluestrProvider.createServer(config);
       updateServer(server);
     });
 
@@ -341,7 +342,7 @@ describe("ProviderServer.createServer()", function() {
 
       config.updateAccount = updateAccount;
 
-      var server = ProviderServer.createServer(config);
+      var server = CluestrProvider.createServer(config);
       updateServer(server);
     });
 
@@ -379,7 +380,7 @@ describe("ProviderServer.createServer()", function() {
       config.updateAccount = updateAccount;
       config.queueWorker = queueWorker;
 
-      var server = ProviderServer.createServer(config);
+      var server = CluestrProvider.createServer(config);
       updateServer(server);
     });
 
@@ -406,7 +407,7 @@ describe("ProviderServer.createServer()", function() {
           config.updateAccount = updateAccount;
           config.queueWorker = queueWorker;
 
-          var server = ProviderServer.createServer(config);
+          var server = CluestrProvider.createServer(config);
           updateServer(server);
         },
         function(cb) {
@@ -427,7 +428,7 @@ describe("ProviderServer.createServer()", function() {
   });
 
   describe("/reset endpoint", function() {
-    before(cleaner);
+    before(CluestrProvider.debug.cleanTokens);
     before(function(done) {
       // Create a token, as-if /init/ workflow was properly done
       var token = new Token({
@@ -443,7 +444,7 @@ describe("ProviderServer.createServer()", function() {
 
 
     it("should require access_token to reset", function(done) {
-      var server = ProviderServer.createServer(config);
+      var server = CluestrProvider.createServer(config);
 
       request(server)
         .post('/reset')
@@ -452,7 +453,7 @@ describe("ProviderServer.createServer()", function() {
     });
 
     it("should require valid access_token to reset", function(done) {
-      var server = ProviderServer.createServer(config);
+      var server = CluestrProvider.createServer(config);
 
       request(server)
         .post('/reset')
@@ -465,7 +466,7 @@ describe("ProviderServer.createServer()", function() {
 
 
     it("should reset account", function(done) {
-      var server = ProviderServer.createServer(config);
+      var server = CluestrProvider.createServer(config);
 
       request(server)
         .post('/reset')
@@ -493,9 +494,8 @@ describe("ProviderServer.createServer()", function() {
 });
 
 
-
 describe("Helper functions", function () {
-  beforeEach(cleaner);
+  beforeEach(CluestrProvider.debug.cleanTokens);
   it("should give access to retrieveDatas()", function(done) {
     async.series([
       function(cb) {
@@ -511,7 +511,7 @@ describe("Helper functions", function () {
         token.save(cb);
       },
       function(cb) {
-        ProviderServer.retrieveDatas({cluestrToken: 'thetoken'}, function(err, datas) {
+        CluestrProvider.retrieveDatas({cluestrToken: 'thetoken'}, function(err, datas) {
           if(err) {
             throw err;
           }
@@ -521,7 +521,7 @@ describe("Helper functions", function () {
         });
       },
       function(cb) {
-        ProviderServer.retrieveDatas({'datas.token': 'unique'}, function(err, datas) {
+        CluestrProvider.retrieveDatas({'datas.token': 'unique'}, function(err, datas) {
           if(err) {
             throw err;
           }

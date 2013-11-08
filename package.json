@@ -22,15 +22,15 @@
   "dependencies": {
     "async": "0.2.x",
     "restify": "2.6.x",
-    "request": "2.26.x",
+    "request": "2.27.x",
     "cluestr": "0.x.x",
-    "mongoose": "3.6.x"
+    "mongoose": "3.8.x"
   },
   "devDependencies": {
-    "mocha": "1.11.x",
-    "should": "1.2.x",
-    "supertest": "0.7.x",
-    "jshint": "2.1.x"
+    "mocha": "1.14.x",
+    "should": "2.0.x",
+    "supertest": "0.8.x",
+    "jshint": "2.3.x"
   },
   "licence": "MIT License",
   "engines": {

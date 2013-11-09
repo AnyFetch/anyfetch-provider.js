@@ -137,7 +137,7 @@ var updateAccount = function(datas, cursor, next) {
 ##### Sending in multiple times
 Sometimes, to send big chunks of datas, you may need to send a first batch of tasks. To do this, just call `next` with an error and an array (without a new cursor). You can do this as many time as you like, once you're done just call next with the new cursor as third parameter.
 
-```
+```javascript
 // For big tasks (multiple gigabytes of datas / asynchronous retrieval of tasks /...)
 var updateAccount = function(datas, cursor, next) {
   // Update the account !
@@ -157,7 +157,7 @@ Some providers update their tokens with time, or have one-time-use refresh token
 To handle such a case, you can use a fourth parameter which is a function to update your datas.
 All tasks pushed after the call to this function will use the new datas.
 
-```
+```javascript
 var updateAccount = function(datas, cursor, next, updateDatas) {
   datas.newKey = "newValue";
   updateDatas(datas, function(err, newDatas) {

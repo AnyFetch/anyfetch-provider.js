@@ -27,7 +27,7 @@ You need to specify some handlers and datas in the `configHash`.
 configHash = {
   cluestrAppId: 'appId',
   cluestrAppSecret: 'appSecret',
-  connectUrl: 'http://myprovider.example.org/init/connect'
+  connectUrl: 'http://myprovider.example.org/init/connect',
   ...
 };
 ```

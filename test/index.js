@@ -469,7 +469,7 @@ describe("CluestrProvider.createServer()", function() {
       var server = CluestrProvider.createServer(config);
 
       request(server)
-        .post('/reset')
+        .del('/reset')
         .expect(409)
         .end(done);
     });
@@ -478,7 +478,7 @@ describe("CluestrProvider.createServer()", function() {
       var server = CluestrProvider.createServer(config);
 
       request(server)
-        .post('/reset')
+        .del('/reset')
         .send({
           access_token: 'dummy_access_token'
         })
@@ -491,7 +491,7 @@ describe("CluestrProvider.createServer()", function() {
       var server = CluestrProvider.createServer(config);
 
       request(server)
-        .post('/reset')
+        .del('/reset')
         .send({
           access_token: 'thetoken'
         })

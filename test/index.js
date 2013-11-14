@@ -31,7 +31,7 @@ var connectAccountRetrieveAuthDatas = function(req, preDatas, next) {
 
 var updateAccount = function(datas, cursor, next) {
   // Update the account !
-  next([], new Date());
+  next(null, [], new Date());
 };
 
 var queueWorker = function(task, cluestrClient, datas, cb) {
@@ -446,6 +446,25 @@ describe("CluestrProvider.createServer()", function() {
           cb();
         }
       ], done);
+    });
+
+    it("should catch failures", function(done) {
+      config.updateAccount = function(datas, cursor, next) {
+        // Update the account !
+        next(null, [{}], new Date());
+      };
+
+      config.queueWorker = function() {
+        console.log("HELLO THR");
+        async.nextTick(function() {
+          throw new Error("I'm a failure.");
+        });
+      };
+
+      var server = CluestrProvider.createServer(config);
+
+      server.queue.drain = done;
+      updateServer(server);
     });
   });
 

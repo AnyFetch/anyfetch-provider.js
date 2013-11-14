@@ -3,7 +3,7 @@
   "version": "0.3.3",
   "author": "Matthieu Bacconnier <matthieu@papiel.fr>",
   "scripts": {
-    "test": "NODE_ENV=test mocha -R spec test/ -g failu",
+    "test": "NODE_ENV=test mocha -R spec test/",
     "lint": "jshint lib/ test/",
     "blanket": {
       "pattern": "lib",

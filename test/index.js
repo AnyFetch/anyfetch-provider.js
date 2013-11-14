@@ -455,10 +455,7 @@ describe("CluestrProvider.createServer()", function() {
       };
 
       config.queueWorker = function() {
-        console.log("HELLO THR");
-        async.nextTick(function() {
-          throw new Error("I'm a failure.");
-        });
+        throw new Error("I'm a failure.");
       };
 
       var server = CluestrProvider.createServer(config);

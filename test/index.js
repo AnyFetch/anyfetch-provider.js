@@ -460,7 +460,10 @@ describe("CluestrProvider.createServer()", function() {
 
       var server = CluestrProvider.createServer(config);
 
-      server.queue.drain = done;
+      server.queue.drain = function(err) {
+        server.queue.drain = function() {};
+        done(err);
+      };
       updateServer(server);
     });
   });

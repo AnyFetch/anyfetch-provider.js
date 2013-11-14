@@ -268,6 +268,30 @@ describe("CluestrProvider.createServer()", function() {
       });
     });
 
+    it("should reenable updating after failure", function(done) {
+      config.queueWorker = function() {
+        throw new Error("Lol.");
+      };
+
+      var server = CluestrProvider.createServer(config);
+
+      updateServer(server, function(err) {
+        if(err) {
+          throw err;
+        }
+
+        setTimeout(function() {
+          request(server)
+            .post('/update')
+            .send({
+              access_token: 'thetoken'
+            })
+            .expect(202)
+            .end(done);
+        }, 50);
+      });
+    });
+
     it("should only allow array for tasks", function(done) {
 
       var tasks = {a:3};

@@ -8,6 +8,8 @@ If you want to add a new service to Cluestr (as a document entry point), you sho
 
 This toolkit enables you to bridge a given service to the cluestr api by mounting a server receiving calls from both side (ie. the service and Cluestr).
 
+Use [Provider boilerplate](https://github.com/Papiel/provider-boilerplate) to generate a new project stub.
+
 ## Installation
 
 `npm install cluestr-provider`

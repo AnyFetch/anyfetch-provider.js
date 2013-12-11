@@ -187,6 +187,15 @@ var queueWorker = function(task, cluestrClient, datas, cb) {
 };
 ```
 
+### Simple use
+For most use case, you'll be able to simplify the initial `initAccount` / `connectAccountRetrievePreDatasIdentifier` / `connectAccountRetrieveAuthDatas`.
+
+You'll simply have to:
+* Use `{code: req.params.code}` as `preDatas` (second argument of `initAccount` `next()` function)
+* Return a `redirectUrl` (third argument of `initAccount` `next()` function) including this code param for later retrieval. Most OAuth provider will let you use a `?state=` parameter to forward datas between initialization and validation.
+* Return `{'datas.code': req.params.state}` (replace `state` with whatever way you have to remember the initial code) as the `preDatasIdentifier` (second argument of  `connectAccountRetrievePreDatasIdentifier` `next()` function). Remember : this object serves as a simple identifier to retrieve the datas you stored before, but in this simple use case we didn't store additional datas over the `code` parameter.
+* Return final credentials in `datas` (second argument of `connectAccountRetrieveAuthDatas` `next()`)
+
 ### Optional parameters
 
 * `concurrency` : number of tasks to run simultaneously on `queueWorker`, default is 1.

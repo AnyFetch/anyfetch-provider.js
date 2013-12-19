@@ -1,5 +1,6 @@
 {
   "name": "cluestr-provider",
+  "description": "Create providers for Cluestr.",
   "version": "0.3.7",
   "author": "Matthieu Bacconnier <matthieu@papiel.fr>",
   "scripts": {

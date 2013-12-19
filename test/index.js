@@ -5,9 +5,9 @@ var request = require('supertest');
 var async = require('async');
 var Cluestr = require('cluestr');
 
-var CluestrProvider = require('../lib/cluestr-provider');
-var TempToken = require('../lib/cluestr-provider/models/temp-token.js');
-var Token = require('../lib/cluestr-provider/models/token.js');
+var CluestrProvider = require('../lib/');
+var TempToken = require('../lib/models/temp-token.js');
+var Token = require('../lib/models/token.js');
 
 var accessGrant = "fakeAccessGrant";
 

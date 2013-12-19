@@ -1,7 +1,7 @@
 'use strict';
 require('should');
 
-var CluestrProvider = require('../lib/cluestr-provider');
+var CluestrProvider = require('../lib/');
 
 
 describe("Helper functions", function () {

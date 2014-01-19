@@ -220,11 +220,11 @@ server.post('/delta', function(req, res, next) {
 Retrieve datas associated with the `hash`. `hash` must be a unique identifier in all account.
 You'll need to prefix the key with `datas.` to search in your datas.
 
-### `debug.cleanTokens`
+### `debug.cleanTokens(cb)`
 Crean all token and temp tokens, use as `before()` for Mocha tests.
 
-### `debug.createToken`
+### `debug.createToken(hash, cb)`
 Create a Token Mongoose model.
 
-### `debug.createTempToken`
+### `debug.createTempToken(hash, cb)`
 Create TempToken Mongoose model.

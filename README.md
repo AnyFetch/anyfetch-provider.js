@@ -1,24 +1,24 @@
-# Cluestr file provider
+# AnyFetch file provider
 
-NodeJS toolkit for creating [Cluestr](http://cluestr.com) providers.
+NodeJS toolkit for creating [anyfetch](http://anyfetch.com) providers.
 
 ## Introduction
 
-If you want to add a new service to Cluestr (as a document entry point), you should use this tiny toolkit.
+If you want to add a new service to AnyFetch (as a document entry point), you should use this tiny toolkit.
 
-This toolkit enables you to bridge a given service to the cluestr api by mounting a server receiving calls from both side (ie. the service and Cluestr).
+This toolkit enables you to bridge a given service to the anyfetch api by mounting a server receiving calls from both side (ie. the service and AnyFetch).
 
 Use [Provider boilerplate](https://github.com/Papiel/provider-boilerplate) to generate a new project stub.
 
 ## Installation
 
-`npm install cluestr-provider`
+`npm install anyfetch-provider`
 
 Then:
 
 ```javascript
 // See syntax below
-var server = CluestrProvider.createServer(configHash);
+var server = AnyFetchProvider.createServer(configHash);
 ```
 
 ## Configuration hash
@@ -27,16 +27,16 @@ You need to specify some handlers and datas in the `configHash`.
 ### Datas
 ```javascript
 configHash = {
-  cluestrAppId: 'appId',
-  cluestrAppSecret: 'appSecret',
+  anyfetchAppId: 'appId',
+  anyfetchAppSecret: 'appSecret',
   connectUrl: 'http://myprovider.example.org/init/connect',
   ...
 };
 ```
 
-* `cluestrAppId`: application id from Cluestr.
-* `cluestrAppSecret`: application secret from Cluestr.
-* `connectUrl`: redirect_uri registered on Cluestr.
+* `anyfetchAppId`: application id from AnyFetch.
+* `anyfetchAppSecret`: application secret from AnyFetch.
+* `connectUrl`: redirect_uri registered on AnyFetch.
 
 ### Handlers
 
@@ -96,7 +96,7 @@ Store your tokens (refresh tokens, access tokens) or any other informations.
 Params:
 * `req`: the current request. Access GET values in `req.params`.
 * `preDatas` datas stored previously, as returned by `initAccount`
-* `next`: call this with the error if any (token is invalid, preDatas are out of date, ...) and the datas to store permanently. Third parameter can optionally be the redirect page, if blank it will be `cluestr.com`.
+* `next`: call this with the error if any (token is invalid, preDatas are out of date, ...) and the datas to store permanently. Third parameter can optionally be the redirect page, if blank it will be `anyfetch.com`.
 
 Example:
 ```javascript
@@ -110,11 +110,11 @@ var connectAccountRetrieveAuthDatas = function(req, preDatas, next) {
 
 #### `updateAccount`
 This function will be called periodically to update documents. Calls will occur:
-* when the user ping `/update` on Cluestr API
+* when the user ping `/update` on AnyFetch API
 * right after connecting the provider for the first time
-* after a span of time, when Cluestr server deems new datas can be gathered.
+* after a span of time, when AnyFetch server deems new datas can be gathered.
 
-This function must return a list of task, each task being a document to create or update on Cluestr.
+This function must return a list of task, each task being a document to create or update on AnyFetch.
 This tasks will be fed to `queueWorker` (see below).
 The function must also return a cursor (for instance, the current date) to remember the state and start upload from this point next time.
 
@@ -172,18 +172,18 @@ var updateAccount = function(datas, cursor, next, updateDatas) {
 
 #### `queueWorker`
 This function will be called with each task returned by `updateAccount`.
-It must send the document to Cluestr using the client available on `cluestrClient`.
+It must send the document to AnyFetch using the client available on `anyfetchClient`.
 
 Params:
 * `task` the task defined previously.
-* `cluestrClient` pre-configured client for upload (with appId, appSecret and accessToken)
+* `anyfetchClient` pre-configured client for upload (with appId, appSecret and accessToken)
 * `datas` datas for the account being updated
 * `cb` call this once document is uploaded and you're ready for another task
 
 ```javascript
-var queueWorker = function(task, cluestrClient, datas, cb) {
+var queueWorker = function(task, anyfetchClient, datas, cb) {
   // Upload document
-  cluestrClient.sendDocument(task, cb);
+  anyfetchClient.sendDocument(task, cb);
 };
 ```
 
@@ -207,9 +207,9 @@ To do so, you can simply plug new routes onto the `server` object. Behind the sc
 
 For instance:
 ```javascript
-var server = CluestrProvider.createServer(configHash);
+var server = AnyFetchProvider.createServer(configHash);
 server.post('/delta', function(req, res, next) {
-  CluestrProvider.retrieveDatas({'datas.account_id': req.params.account_id}, function(err, datas) {
+  AnyFetchProvider.retrieveDatas({'datas.account_id': req.params.account_id}, function(err, datas) {
     ...
 });
 })
@@ -220,11 +220,11 @@ server.post('/delta', function(req, res, next) {
 Retrieve datas associated with the `hash`. `hash` must be a unique identifier in all account.
 You'll need to prefix the key with `datas.` to search in your datas.
 
-### `debug.cleanTokens`
+### `debug.cleanTokens(cb)`
 Crean all token and temp tokens, use as `before()` for Mocha tests.
 
-### `debug.createToken`
+### `debug.createToken(hash, cb)`
 Create a Token Mongoose model.
 
-### `debug.createTempToken`
+### `debug.createTempToken(hash, cb)`
 Create TempToken Mongoose model.

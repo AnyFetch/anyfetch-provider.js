@@ -34,7 +34,7 @@ var updateAccount = function(datas, cursor, next) {
   next(null, [], new Date());
 };
 
-var queueWorker = function(task, anyFetchClient, datas, cb) {
+var queueWorker = function(task, anyfetchClient, datas, cb) {
   // Upload document
   cb();
 };
@@ -49,8 +49,8 @@ var resetConfig = function() {
     updateAccount: updateAccount,
     queueWorker: queueWorker,
 
-    anyFetchAppId: 'appId',
-    anyFetchAppSecret: 'appSecret',
+    anyfetchAppId: 'appId',
+    anyfetchAppSecret: 'appSecret',
     connectUrl: 'http://localhost:1337/init/connect'
   };
 };
@@ -76,8 +76,8 @@ describe("AnyFetchProvider.createServer() config", function() {
   });
 
   it("should err on missing parameter", function(done) {
-    delete config.anyFetchAppId;
-    AnyFetchProvider.validateConfig(config).toString().should.include('Specify `anyFetchAppId');
+    delete config.anyfetchAppId;
+    AnyFetchProvider.validateConfig(config).toString().should.include('Specify `anyfetchAppId');
     done();
   });
 });
@@ -89,7 +89,7 @@ describe("AnyFetchProvider.createServer()", function() {
   describe("/init endpoints", function() {
     beforeEach(AnyFetchProvider.debug.cleanTokens);
 
-    it("should require anyFetch code", function(done) {
+    it("should require anyfetch code", function(done) {
       var server = AnyFetchProvider.createServer(config);
 
       request(server).get('/init/connect')
@@ -110,7 +110,7 @@ describe("AnyFetchProvider.createServer()", function() {
 
       var server = AnyFetchProvider.createServer(config);
 
-      request(server).get('/init/connect?code=anyFetch_code')
+      request(server).get('/init/connect?code=anyfetch_code')
         .expect(302)
         .end(function(err) {
           if(err) {
@@ -122,7 +122,7 @@ describe("AnyFetchProvider.createServer()", function() {
               return done(err);
             }
 
-            tempToken.should.have.property('anyFetchCode', 'anyFetch_code');
+            tempToken.should.have.property('anyfetchCode', 'anyfetch_code');
 
             done();
           });
@@ -147,7 +147,7 @@ describe("AnyFetchProvider.createServer()", function() {
         function(cb) {
           // Fake a call to /init/connect returned this datas
           var tempToken = new TempToken({
-            anyFetchCode: 'anyFetch_token',
+            anyfetchCode: 'anyfetch_token',
             datas: originalPreDatas
           });
 
@@ -217,7 +217,7 @@ describe("AnyFetchProvider.createServer()", function() {
     beforeEach(function(done) {
       // Create a token, as-if /init/ workflow was properly done
       var token = new Token({
-        anyFetchToken: 'thetoken',
+        anyfetchToken: 'thetoken',
         datas: {
           foo: 'bar'
         }
@@ -324,10 +324,10 @@ describe("AnyFetchProvider.createServer()", function() {
         next(null, tasks, new Date());
       };
 
-      var queueWorker = function(task, anyFetchClient, datas, cb) {
+      var queueWorker = function(task, anyfetchClient, datas, cb) {
         // Upload document
         task.should.have.property('a').within(1, 3);
-        anyFetchClient.should.have.property('sendDocument');
+        anyfetchClient.should.have.property('sendDocument');
         datas.should.have.property('foo', 'bar');
 
         counter += 1;
@@ -357,7 +357,7 @@ describe("AnyFetchProvider.createServer()", function() {
         });
       };
 
-      var queueWorker = function(task, anyFetchClient, datas, cb) {
+      var queueWorker = function(task, anyfetchClient, datas, cb) {
         counter += 1;
         if(counter === tasks1.length + tasks2.length) {
           done();
@@ -402,7 +402,7 @@ describe("AnyFetchProvider.createServer()", function() {
             throw err;
           }
 
-          Token.findOne({anyFetchToken: 'thetoken'}, function(err, token) {
+          Token.findOne({anyfetchToken: 'thetoken'}, function(err, token) {
             if(err) {
               throw err;
             }
@@ -415,7 +415,7 @@ describe("AnyFetchProvider.createServer()", function() {
         });
       };
 
-      var queueWorker = function(task, anyFetchClient, datas, cb) {
+      var queueWorker = function(task, anyfetchClient, datas, cb) {
         // Upload document
         datas.should.have.property('newKey', 'newValue');
 
@@ -441,7 +441,7 @@ describe("AnyFetchProvider.createServer()", function() {
 
       async.waterfall([
         function(cb) {
-          var queueWorker = function(task, anyFetchClient, datas, cb2) {
+          var queueWorker = function(task, anyfetchClient, datas, cb2) {
             counter += 1;
             if(counter === tasks.length) {
               async.nextTick(cb);
@@ -462,7 +462,7 @@ describe("AnyFetchProvider.createServer()", function() {
         },
         function(cb) {
           // All tasks done
-          Token.findOne({anyFetchToken: 'thetoken'}, cb);
+          Token.findOne({anyfetchToken: 'thetoken'}, cb);
         },
         function(token, cb) {
           token.cursor.should.equal("newcursor");
@@ -497,7 +497,7 @@ describe("AnyFetchProvider.createServer()", function() {
     before(function(done) {
       // Create a token, as-if /init/ workflow was properly done
       var token = new Token({
-        anyFetchToken: 'thetoken',
+        anyfetchToken: 'thetoken',
         datas: {
           foo: 'bar'
         },
@@ -544,7 +544,7 @@ describe("AnyFetchProvider.createServer()", function() {
             throw err;
           }
 
-          Token.findOne({anyFetchToken: 'thetoken'}, function(err, token) {
+          Token.findOne({anyfetchToken: 'thetoken'}, function(err, token) {
             if(err) {
               throw err;
             }

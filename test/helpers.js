@@ -10,7 +10,7 @@ describe("Helper functions", function () {
     beforeEach(function(done) {
       // Create a token, as-if /init/ workflow was properly done
       AnyFetchProvider.debug.createToken({
-        anyFetchToken: 'thetoken',
+        anyfetchToken: 'thetoken',
         datas: {
           token: 'unique',
           foo: 'bar'
@@ -19,7 +19,7 @@ describe("Helper functions", function () {
     });
 
     it("should retrieve with code", function(done) {
-      AnyFetchProvider.retrieveDatas({anyFetchToken: 'thetoken'}, function(err, datas) {
+      AnyFetchProvider.retrieveDatas({anyfetchToken: 'thetoken'}, function(err, datas) {
         if(err) {
           throw err;
         }

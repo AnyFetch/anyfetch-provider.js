@@ -1,18 +1,18 @@
 # AnyFetch file provider
 
-NodeJS toolkit for creating [AnyFetch](http://anyFetch.com) providers.
+NodeJS toolkit for creating [anyfetch](http://anyfetch.com) providers.
 
 ## Introduction
 
 If you want to add a new service to AnyFetch (as a document entry point), you should use this tiny toolkit.
 
-This toolkit enables you to bridge a given service to the anyFetch api by mounting a server receiving calls from both side (ie. the service and AnyFetch).
+This toolkit enables you to bridge a given service to the anyfetch api by mounting a server receiving calls from both side (ie. the service and AnyFetch).
 
 Use [Provider boilerplate](https://github.com/Papiel/provider-boilerplate) to generate a new project stub.
 
 ## Installation
 
-`npm install anyFetch-provider`
+`npm install anyfetch-provider`
 
 Then:
 
@@ -27,15 +27,15 @@ You need to specify some handlers and datas in the `configHash`.
 ### Datas
 ```javascript
 configHash = {
-  anyFetchAppId: 'appId',
-  anyFetchAppSecret: 'appSecret',
+  anyfetchAppId: 'appId',
+  anyfetchAppSecret: 'appSecret',
   connectUrl: 'http://myprovider.example.org/init/connect',
   ...
 };
 ```
 
-* `anyFetchAppId`: application id from AnyFetch.
-* `anyFetchAppSecret`: application secret from AnyFetch.
+* `anyfetchAppId`: application id from AnyFetch.
+* `anyfetchAppSecret`: application secret from AnyFetch.
 * `connectUrl`: redirect_uri registered on AnyFetch.
 
 ### Handlers
@@ -96,7 +96,7 @@ Store your tokens (refresh tokens, access tokens) or any other informations.
 Params:
 * `req`: the current request. Access GET values in `req.params`.
 * `preDatas` datas stored previously, as returned by `initAccount`
-* `next`: call this with the error if any (token is invalid, preDatas are out of date, ...) and the datas to store permanently. Third parameter can optionally be the redirect page, if blank it will be `anyFetch.com`.
+* `next`: call this with the error if any (token is invalid, preDatas are out of date, ...) and the datas to store permanently. Third parameter can optionally be the redirect page, if blank it will be `anyfetch.com`.
 
 Example:
 ```javascript
@@ -172,18 +172,18 @@ var updateAccount = function(datas, cursor, next, updateDatas) {
 
 #### `queueWorker`
 This function will be called with each task returned by `updateAccount`.
-It must send the document to AnyFetch using the client available on `anyFetchClient`.
+It must send the document to AnyFetch using the client available on `anyfetchClient`.
 
 Params:
 * `task` the task defined previously.
-* `anyFetchClient` pre-configured client for upload (with appId, appSecret and accessToken)
+* `anyfetchClient` pre-configured client for upload (with appId, appSecret and accessToken)
 * `datas` datas for the account being updated
 * `cb` call this once document is uploaded and you're ready for another task
 
 ```javascript
-var queueWorker = function(task, anyFetchClient, datas, cb) {
+var queueWorker = function(task, anyfetchClient, datas, cb) {
   // Upload document
-  anyFetchClient.sendDocument(task, cb);
+  anyfetchClient.sendDocument(task, cb);
 };
 ```
 

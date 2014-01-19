@@ -1,5 +1,5 @@
 {
-  "name": "anyfetch-providing",
+  "name": "anyfetch-provider",
   "version": "0.3.7",
   "author": "Matthieu Bacconnier <matthieu@papiel.fr>",
   "scripts": {
@@ -9,7 +9,7 @@
   "main": "./lib/",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Papiel/anyfetch-providing.js"
+    "url": "https://github.com/Papiel/anyfetch-provider.js"
   },
   "keywords": [
     "anyFetch",

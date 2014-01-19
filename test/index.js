@@ -3,7 +3,7 @@
 require('should');
 var request = require('supertest');
 var async = require('async');
-var AnyFetch = require('anyFetch');
+var AnyFetch = require('anyfetch');
 
 var AnyFetchProvider = require('../lib/');
 var TempToken = require('../lib/models/temp-token.js');

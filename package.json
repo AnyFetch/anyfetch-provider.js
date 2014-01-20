@@ -1,6 +1,6 @@
 {
-  "name": "cluestr-provider",
-  "description": "Create providers for Cluestr.",
+  "name": "anyfetch-provider",
+  "description": "Create providers for Anyfetch.",
   "version": "0.3.7",
   "author": "Matthieu Bacconnier <matthieu@papiel.fr>",
   "scripts": {
@@ -10,17 +10,17 @@
   "main": "./lib/",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Papiel/cluestr-provider"
+    "url": "https://github.com/Papiel/anyfetch-provider.js"
   },
   "keywords": [
-    "cluestr",
+    "anyfetch",
     "provider"
   ],
   "dependencies": {
     "async": "0.2.x",
     "restify": "2.6.x",
     "request": "2.30.x",
-    "cluestr": "0.x.x",
+    "anyfetch": "0.x.x",
     "mongoose": "3.8.x"
   },
   "devDependencies": {

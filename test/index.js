@@ -3,9 +3,9 @@
 require('should');
 var request = require('supertest');
 var async = require('async');
-var Cluestr = require('cluestr');
+var AnyFetch = require('anyfetch');
 
-var CluestrProvider = require('../lib/');
+var AnyFetchProvider = require('../lib/');
 var TempToken = require('../lib/models/temp-token.js');
 var Token = require('../lib/models/token.js');
 
@@ -34,7 +34,7 @@ var updateAccount = function(datas, cursor, next) {
   next(null, [], new Date());
 };
 
-var queueWorker = function(task, cluestrClient, datas, cb) {
+var queueWorker = function(task, anyfetchClient, datas, cb) {
   // Upload document
   cb();
 };
@@ -49,18 +49,18 @@ var resetConfig = function() {
     updateAccount: updateAccount,
     queueWorker: queueWorker,
 
-    cluestrAppId: 'appId',
-    cluestrAppSecret: 'appSecret',
+    anyfetchAppId: 'appId',
+    anyfetchAppSecret: 'appSecret',
     connectUrl: 'http://localhost:1337/init/connect'
   };
 };
 
 
-describe("CluestrProvider.createServer() config", function() {
+describe("AnyFetchProvider.createServer() config", function() {
   beforeEach(resetConfig);
 
   it("should validate correct config", function(done) {
-    var ret = CluestrProvider.validateConfig(config);
+    var ret = AnyFetchProvider.validateConfig(config);
 
     if(ret) {
       throw new Error("No error should be returned");
@@ -71,26 +71,26 @@ describe("CluestrProvider.createServer() config", function() {
 
   it("should err on missing handler", function(done) {
     delete config.initAccount;
-    CluestrProvider.validateConfig(config).toString().should.include('Specify `initAccount');
+    AnyFetchProvider.validateConfig(config).toString().should.include('Specify `initAccount');
     done();
   });
 
   it("should err on missing parameter", function(done) {
-    delete config.cluestrAppId;
-    CluestrProvider.validateConfig(config).toString().should.include('Specify `cluestrAppId');
+    delete config.anyfetchAppId;
+    AnyFetchProvider.validateConfig(config).toString().should.include('Specify `anyfetchAppId');
     done();
   });
 });
 
 
-describe("CluestrProvider.createServer()", function() {
+describe("AnyFetchProvider.createServer()", function() {
   beforeEach(resetConfig);
 
   describe("/init endpoints", function() {
-    beforeEach(CluestrProvider.debug.cleanTokens);
+    beforeEach(AnyFetchProvider.debug.cleanTokens);
 
-    it("should require cluestr code", function(done) {
-      var server = CluestrProvider.createServer(config);
+    it("should require anyfetch code", function(done) {
+      var server = AnyFetchProvider.createServer(config);
 
       request(server).get('/init/connect')
         .expect(409)
@@ -108,9 +108,9 @@ describe("CluestrProvider.createServer()", function() {
 
       config.initAccount = initAccount;
 
-      var server = CluestrProvider.createServer(config);
+      var server = AnyFetchProvider.createServer(config);
 
-      request(server).get('/init/connect?code=cluestr_code')
+      request(server).get('/init/connect?code=anyfetch_code')
         .expect(302)
         .end(function(err) {
           if(err) {
@@ -122,7 +122,7 @@ describe("CluestrProvider.createServer()", function() {
               return done(err);
             }
 
-            tempToken.should.have.property('cluestrCode', 'cluestr_code');
+            tempToken.should.have.property('anyfetchCode', 'anyfetch_code');
 
             done();
           });
@@ -131,11 +131,11 @@ describe("CluestrProvider.createServer()", function() {
     });
 
     it("should retrieve datas on TempToken", function(done) {
-      // Fake Cluestr server handling access token scheme
-      process.env.CLUESTR_FRONT = 'http://localhost:1337';
+      // Fake AnyFetch server handling access token scheme
+      process.env.ANYFETCH_SETTINGS_URL = 'http://localhost:1337';
 
       // Create a fake HTTP server
-      var frontServer = Cluestr.debug.createTestFrontServer();
+      var frontServer = AnyFetch.debug.createTestFrontServer();
       frontServer.listen(1337);
 
       var originalPreDatas = {
@@ -147,7 +147,7 @@ describe("CluestrProvider.createServer()", function() {
         function(cb) {
           // Fake a call to /init/connect returned this datas
           var tempToken = new TempToken({
-            cluestrCode: 'cluestr_token',
+            anyfetchCode: 'anyfetch_token',
             datas: originalPreDatas
           });
 
@@ -169,7 +169,7 @@ describe("CluestrProvider.createServer()", function() {
           config.connectAccountRetrievePreDatasIdentifier = connectAccountRetrievePreDatasIdentifier;
           config.connectAccountRetrieveAuthDatas = connectAccountRetrieveAuthDatas;
 
-          var server = CluestrProvider.createServer(config);
+          var server = AnyFetchProvider.createServer(config);
 
           request(server).get('/init/callback?code=retrieval')
             .expect(302)
@@ -213,11 +213,11 @@ describe("CluestrProvider.createServer()", function() {
         .end(done);
     };
 
-    beforeEach(CluestrProvider.debug.cleanTokens);
+    beforeEach(AnyFetchProvider.debug.cleanTokens);
     beforeEach(function(done) {
       // Create a token, as-if /init/ workflow was properly done
       var token = new Token({
-        cluestrToken: 'thetoken',
+        anyfetchToken: 'thetoken',
         datas: {
           foo: 'bar'
         }
@@ -228,7 +228,7 @@ describe("CluestrProvider.createServer()", function() {
 
 
     it("should require access_token to update", function(done) {
-      var server = CluestrProvider.createServer(config);
+      var server = AnyFetchProvider.createServer(config);
 
       request(server)
         .post('/update')
@@ -238,7 +238,7 @@ describe("CluestrProvider.createServer()", function() {
 
 
     it("should require valid access_token to update", function(done) {
-      var server = CluestrProvider.createServer(config);
+      var server = AnyFetchProvider.createServer(config);
 
       request(server)
         .post('/update')
@@ -251,7 +251,7 @@ describe("CluestrProvider.createServer()", function() {
 
 
     it("should disable updating while updating", function(done) {
-      var server = CluestrProvider.createServer(config);
+      var server = AnyFetchProvider.createServer(config);
 
       updateServer(server, function(err) {
         if(err) {
@@ -273,7 +273,7 @@ describe("CluestrProvider.createServer()", function() {
         throw new Error("Lol.");
       };
 
-      var server = CluestrProvider.createServer(config);
+      var server = AnyFetchProvider.createServer(config);
 
       updateServer(server, function(err) {
         if(err) {
@@ -310,7 +310,7 @@ describe("CluestrProvider.createServer()", function() {
 
       config.updateAccount = updateAccount;
 
-      var server = CluestrProvider.createServer(config);
+      var server = AnyFetchProvider.createServer(config);
       updateServer(server);
     });
 
@@ -324,10 +324,10 @@ describe("CluestrProvider.createServer()", function() {
         next(null, tasks, new Date());
       };
 
-      var queueWorker = function(task, cluestrClient, datas, cb) {
+      var queueWorker = function(task, anyfetchClient, datas, cb) {
         // Upload document
         task.should.have.property('a').within(1, 3);
-        cluestrClient.should.have.property('sendDocument');
+        anyfetchClient.should.have.property('sendDocument');
         datas.should.have.property('foo', 'bar');
 
         counter += 1;
@@ -340,7 +340,7 @@ describe("CluestrProvider.createServer()", function() {
       config.updateAccount = updateAccount;
       config.queueWorker = queueWorker;
 
-      var server = CluestrProvider.createServer(config);
+      var server = AnyFetchProvider.createServer(config);
       updateServer(server);
     });
 
@@ -357,7 +357,7 @@ describe("CluestrProvider.createServer()", function() {
         });
       };
 
-      var queueWorker = function(task, cluestrClient, datas, cb) {
+      var queueWorker = function(task, anyfetchClient, datas, cb) {
         counter += 1;
         if(counter === tasks1.length + tasks2.length) {
           done();
@@ -368,7 +368,7 @@ describe("CluestrProvider.createServer()", function() {
       config.updateAccount = updateAccount;
       config.queueWorker = queueWorker;
 
-      var server = CluestrProvider.createServer(config);
+      var server = AnyFetchProvider.createServer(config);
       updateServer(server);
     });
 
@@ -388,7 +388,7 @@ describe("CluestrProvider.createServer()", function() {
 
       config.updateAccount = updateAccount;
 
-      var server = CluestrProvider.createServer(config);
+      var server = AnyFetchProvider.createServer(config);
       updateServer(server);
     });
 
@@ -402,7 +402,7 @@ describe("CluestrProvider.createServer()", function() {
             throw err;
           }
 
-          Token.findOne({cluestrToken: 'thetoken'}, function(err, token) {
+          Token.findOne({anyfetchToken: 'thetoken'}, function(err, token) {
             if(err) {
               throw err;
             }
@@ -415,7 +415,7 @@ describe("CluestrProvider.createServer()", function() {
         });
       };
 
-      var queueWorker = function(task, cluestrClient, datas, cb) {
+      var queueWorker = function(task, anyfetchClient, datas, cb) {
         // Upload document
         datas.should.have.property('newKey', 'newValue');
 
@@ -426,7 +426,7 @@ describe("CluestrProvider.createServer()", function() {
       config.updateAccount = updateAccount;
       config.queueWorker = queueWorker;
 
-      var server = CluestrProvider.createServer(config);
+      var server = AnyFetchProvider.createServer(config);
       updateServer(server);
     });
 
@@ -441,7 +441,7 @@ describe("CluestrProvider.createServer()", function() {
 
       async.waterfall([
         function(cb) {
-          var queueWorker = function(task, cluestrClient, datas, cb2) {
+          var queueWorker = function(task, anyfetchClient, datas, cb2) {
             counter += 1;
             if(counter === tasks.length) {
               async.nextTick(cb);
@@ -453,7 +453,7 @@ describe("CluestrProvider.createServer()", function() {
           config.updateAccount = updateAccount;
           config.queueWorker = queueWorker;
 
-          var server = CluestrProvider.createServer(config);
+          var server = AnyFetchProvider.createServer(config);
           updateServer(server);
         },
         function(cb) {
@@ -462,7 +462,7 @@ describe("CluestrProvider.createServer()", function() {
         },
         function(cb) {
           // All tasks done
-          Token.findOne({cluestrToken: 'thetoken'}, cb);
+          Token.findOne({anyfetchToken: 'thetoken'}, cb);
         },
         function(token, cb) {
           token.cursor.should.equal("newcursor");
@@ -482,7 +482,7 @@ describe("CluestrProvider.createServer()", function() {
         throw new Error("I'm a failure.");
       };
 
-      var server = CluestrProvider.createServer(config);
+      var server = AnyFetchProvider.createServer(config);
 
       server.queue.drain = function(err) {
         server.queue.drain = function() {};
@@ -493,11 +493,11 @@ describe("CluestrProvider.createServer()", function() {
   });
 
   describe("/reset endpoint", function() {
-    before(CluestrProvider.debug.cleanTokens);
+    before(AnyFetchProvider.debug.cleanTokens);
     before(function(done) {
       // Create a token, as-if /init/ workflow was properly done
       var token = new Token({
-        cluestrToken: 'thetoken',
+        anyfetchToken: 'thetoken',
         datas: {
           foo: 'bar'
         },
@@ -509,7 +509,7 @@ describe("CluestrProvider.createServer()", function() {
 
 
     it("should require access_token to reset", function(done) {
-      var server = CluestrProvider.createServer(config);
+      var server = AnyFetchProvider.createServer(config);
 
       request(server)
         .del('/reset')
@@ -518,7 +518,7 @@ describe("CluestrProvider.createServer()", function() {
     });
 
     it("should require valid access_token to reset", function(done) {
-      var server = CluestrProvider.createServer(config);
+      var server = AnyFetchProvider.createServer(config);
 
       request(server)
         .del('/reset')
@@ -531,7 +531,7 @@ describe("CluestrProvider.createServer()", function() {
 
 
     it("should reset account", function(done) {
-      var server = CluestrProvider.createServer(config);
+      var server = AnyFetchProvider.createServer(config);
 
       request(server)
         .del('/reset')
@@ -544,7 +544,7 @@ describe("CluestrProvider.createServer()", function() {
             throw err;
           }
 
-          Token.findOne({cluestrToken: 'thetoken'}, function(err, token) {
+          Token.findOne({anyfetchToken: 'thetoken'}, function(err, token) {
             if(err) {
               throw err;
             }

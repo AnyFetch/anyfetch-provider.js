@@ -29,7 +29,7 @@
     "supertest": "0.8.x",
     "jshint": "2.3.x"
   },
-  "licence": "MIT License",
+  "licence": "MIT",
   "engines": {
     "node": ">=0.10"
   }

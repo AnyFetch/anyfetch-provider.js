@@ -2,6 +2,7 @@ AnyFetch provider
 ======================
 
 [![Build Status](https://travis-ci.org/Papiel/anyfetch-provider.js.png?branch=master)](https://travis-ci.org/Papiel/anyfetch-provider.js)[![Dependency Status](https://gemnasium.com/Papiel/anyfetch-provider.js.png)](https://gemnasium.com/Papiel/anyfetch-provider.js)
+[![Coverage Status](https://coveralls.io/repos/Papiel/cluestr-provider/badge.png?branch=master)](https://coveralls.io/r/Papiel/cluestr-provider?branch=master)
 [![NPM version](https://badge.fury.io/js/anyfetch-provider.png)](http://badge.fury.io/js/anyfetch-provider)
 
 NodeJS toolkit for creating [anyFetch](http://anyfetch.com) providers.

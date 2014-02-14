@@ -1,6 +1,10 @@
-# AnyFetch file provider
+AnyFetch provider
+======================
 
-NodeJS toolkit for creating [anyfetch](http://anyfetch.com) providers.
+[![Build Status](https://travis-ci.org/Papiel/anyfetch-provider.js.png?branch=master)](https://travis-ci.org/Papiel/anyfetch-provider.js)[![Dependency Status](https://gemnasium.com/Papiel/anyfetch-provider.js.png)](https://gemnasium.com/Papiel/anyfetch-provider.js)
+[![NPM version](https://badge.fury.io/js/anyfetch-provider.png)](http://badge.fury.io/js/anyfetch-provider)
+
+NodeJS toolkit for creating [anyFetch](http://anyfetch.com) providers.
 
 ## Introduction
 

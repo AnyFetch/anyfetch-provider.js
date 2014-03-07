@@ -556,4 +556,60 @@ describe("AnyFetchProvider.createServer()", function() {
         });
     });
   });
+
+
+  describe("/status endpoint", function() {
+    var token;
+    before(AnyFetchProvider.debug.cleanTokens);
+    before(function(done) {
+      // Create a token, as-if /init/ workflow was properly done
+      token = new Token({
+        anyfetchToken: 'thetoken',
+        datas: {
+          foo: 'bar'
+        },
+        cursor: 'current-cursor'
+      });
+
+      token.save(done);
+    });
+
+
+    it("should require an access_token", function(done) {
+      var server = AnyFetchProvider.createServer(config);
+
+      request(server)
+        .get('/status')
+        .expect(409)
+        .end(done);
+    });
+
+    it("should require valid access_token", function(done) {
+      var server = AnyFetchProvider.createServer(config);
+
+      request(server)
+        .get('/status')
+        .query({
+          access_token: 'dummy_access_token'
+        })
+        .expect(409)
+        .end(done);
+    });
+
+
+    it("should display informations", function(done) {
+      var server = AnyFetchProvider.createServer(config);
+
+      request(server)
+        .get('/status')
+        .query({
+          access_token: token.anyfetchToken
+        })
+        .expect(200)
+        .expect(function(res) {
+          res.body.should.have.keys(['anyfetch_token', 'datas', 'cursor', 'is_updating', 'last_update']);
+        })
+        .end(done);
+    });
+  });
 });

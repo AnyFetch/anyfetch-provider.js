@@ -8,14 +8,13 @@ AnyFetch provider
 NodeJS toolkit for creating [anyFetch](http://anyfetch.com) providers.
 
 ## Introduction
-
 If you want to add a new service to AnyFetch (as a document entry point), you should use this tiny toolkit.
 
-This toolkit enables you to bridge a given service to the anyfetch api by mounting a server receiving calls from both side (ie. the service and AnyFetch).
+This toolkit enables you to bridge a given service to the anyFetch api by mounting a server receiving calls from both sides (ie. the service and AnyFetch).
 
 Use [Provider boilerplate](https://github.com/Papiel/provider-boilerplate) to generate a new project stub.
 
-## Installation
+## Installation and documentation
 
 `npm install anyfetch-provider`
 
@@ -27,6 +26,8 @@ var server = AnyFetchProvider.createServer(configHash);
 ```
 
 ## Configuration hash
+> Too lazy to read the doc? Why not check out real use-case from open-source code! For a simple use case, take a look on this file from the [Google Contacts provider](https://github.com/Papiel/gcontacts.provider.anyfetch.com/blob/master/lib/index.js). For more advanced use-case with file upload, see [Dropbox provider](https://github.com/Papiel/dropbox.provider.anyfetch.com/blob/master/lib/index.js).
+
 You need to specify some handlers and datas in the `configHash`.
 
 ### Datas

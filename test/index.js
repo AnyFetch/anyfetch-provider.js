@@ -207,7 +207,8 @@ describe("AnyFetchProvider.createServer()", function() {
 
       request(server).post('/update')
         .send({
-          access_token: 'thetoken'
+          access_token: 'thetoken',
+          api_url: 'http://api.anyfetch.com'
         })
         .expect(202)
         .end(done);
@@ -232,10 +233,27 @@ describe("AnyFetchProvider.createServer()", function() {
 
       request(server)
         .post('/update')
+        .send({
+          api_url: process.env.ANYFETCH_SETTINGS_URL
+        })
         .expect(409)
+        .expect(/access_token/)
         .end(done);
     });
 
+
+    it("should require access_token to update", function(done) {
+      var server = AnyFetchProvider.createServer(config);
+
+      request(server)
+        .post('/update')
+        .send({
+          access_token: '123'
+        })
+        .expect(409)
+        .expect(/api_url/)
+        .end(done);
+    });
 
     it("should require valid access_token to update", function(done) {
       var server = AnyFetchProvider.createServer(config);
@@ -243,7 +261,8 @@ describe("AnyFetchProvider.createServer()", function() {
       request(server)
         .post('/update')
         .send({
-          access_token: 'dummy_access_token'
+          access_token: 'dummy_access_token',
+          api_url: 'http://api.anyfetch.com'
         })
         .expect(409)
         .end(done);
@@ -261,7 +280,8 @@ describe("AnyFetchProvider.createServer()", function() {
         request(server)
           .post('/update')
           .send({
-            access_token: 'thetoken'
+            access_token: 'thetoken',
+            api_url: 'http://api.anyfetch.com'
           })
           .expect(204)
           .end(done);
@@ -284,7 +304,8 @@ describe("AnyFetchProvider.createServer()", function() {
           request(server)
             .post('/update')
             .send({
-              access_token: 'thetoken'
+              access_token: 'thetoken',
+              api_url: process.env.ANYFETCH_SETTINGS_URL
             })
             .expect(202)
             .end(done);

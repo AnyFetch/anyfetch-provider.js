@@ -86,6 +86,17 @@ describe("AnyFetchProvider.createServer() config", function() {
 describe("AnyFetchProvider.createServer()", function() {
   beforeEach(resetConfig);
 
+  describe('/ endpoint', function() {
+    it("should redirect to anyfetch.com", function(done) {
+      var server = AnyFetchProvider.createServer(config);
+
+      request(server).get('/')
+        .expect(302)
+        .expect('Location', 'http://anyfetch.com')
+        .end(done);
+    });
+  });
+
   describe("/init endpoints", function() {
     beforeEach(AnyFetchProvider.debug.cleanTokens);
 

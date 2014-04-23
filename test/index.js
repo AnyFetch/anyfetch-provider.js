@@ -293,7 +293,7 @@ describe("AnyFetchProvider.createServer()", function() {
         request(server)
           .post('/update')
           .send({
-            access_token: 'thetoken',
+            access_token: token.anyfetchToken,
             api_url: 'http://api.anyfetch.com'
           })
           .expect(204)
@@ -314,7 +314,8 @@ describe("AnyFetchProvider.createServer()", function() {
           request(server)
             .post('/update')
             .send({
-              access_token: token.anyfetchToken
+              access_token: token.anyfetchToken,
+              api_url: 'http://api.anyfetch.com'
             })
             .expect(202)
             .expect('X-Restart-Forced', 'true')
@@ -339,7 +340,7 @@ describe("AnyFetchProvider.createServer()", function() {
           request(server)
             .post('/update')
             .send({
-              access_token: 'thetoken',
+              access_token: token.anyfetchToken,
               api_url: process.env.ANYFETCH_SETTINGS_URL
             })
             .expect(202)

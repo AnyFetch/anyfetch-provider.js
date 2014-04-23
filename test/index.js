@@ -263,9 +263,7 @@ describe("AnyFetchProvider.createServer()", function() {
           .send({
             access_token: 'thetoken'
           })
-          .expect(function(res) {
-            console.log(res.body);
-          })
+          .expect(204)
           .end(done);
       });
     });

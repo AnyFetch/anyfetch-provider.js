@@ -17,8 +17,8 @@
     "provider"
   ],
   "dependencies": {
-    "async": "0.2.x",
-    "restify": "2.6.x",
+    "async": "0.7.x",
+    "restify": "2.7.x",
     "request": "2.x.x",
     "anyfetch": "0.x.x",
     "mongoose": "3.8.x"

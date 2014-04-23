@@ -270,10 +270,11 @@ describe("AnyFetchProvider.createServer()", function() {
       });
     });
 
-    it("should restart updating if status is updating but the queue is empty", function(done) {
+    it("should restart update if status is updating but the queue is empty", function(done) {
       var server = AnyFetchProvider.createServer(config);
 
       async.waterfall([
+        // Simulate a crash (isUpdating to true, queue empty)
         function updateToken(cb) {
           token.isUpdating = true;
           token.save(cb);
@@ -282,7 +283,7 @@ describe("AnyFetchProvider.createServer()", function() {
           request(server)
             .post('/update')
             .send({
-              access_token: 'thetoken'
+              access_token: token.anyfetchToken
             })
             .expect(202)
             .expect('X-Restart-Forced', 'true')

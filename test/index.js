@@ -225,10 +225,12 @@ describe("AnyFetchProvider.createServer()", function() {
         .end(done);
     };
 
+    var token;
+
     beforeEach(AnyFetchProvider.debug.cleanTokens);
     beforeEach(function(done) {
       // Create a token, as-if /init/ workflow was properly done
-      var token = new Token({
+      token = new Token({
         anyfetchToken: 'thetoken',
         datas: {
           foo: 'bar'
@@ -297,6 +299,28 @@ describe("AnyFetchProvider.createServer()", function() {
           .expect(204)
           .end(done);
       });
+    });
+
+    it("should restart update if status is updating but the queue is empty", function(done) {
+      var server = AnyFetchProvider.createServer(config);
+
+      async.waterfall([
+        // Simulate a crash (isUpdating to true, queue empty)
+        function updateToken(cb) {
+          token.isUpdating = true;
+          token.save(cb);
+        },
+        function sendUpdate(token, count, cb) {
+          request(server)
+            .post('/update')
+            .send({
+              access_token: token.anyfetchToken
+            })
+            .expect(202)
+            .expect('X-Restart-Forced', 'true')
+            .end(cb);
+        },
+      ], done);
     });
 
     it("should reenable updating after failure", function(done) {

@@ -28,9 +28,9 @@ var server = AnyFetchProvider.createServer(configHash);
 ## Configuration hash
 > Too lazy to read the doc? Why not check out real use-case from open-source code! For a simple use case, take a look on this file from the [Google Contacts provider](https://github.com/Papiel/gcontacts.provider.anyfetch.com/blob/master/lib/index.js). For more advanced use-case with file upload, see [Dropbox provider](https://github.com/Papiel/dropbox.provider.anyfetch.com/blob/master/lib/index.js).
 
-You need to specify some handlers and datas in the `configHash`.
+You need to specify some handlers and data in the `configHash`.
 
-### Datas
+### Data
 ```javascript
 configHash = {
   anyfetchAppId: 'appId',
@@ -59,11 +59,11 @@ configHash = {
 
 #### `initAccount`
 Called when connecting an account for the first time.
-This function is responsible to store pre-datas (authorization grant, temporary values) and redirecting to another page.
+This function is responsible to store pre-data (authorization grant, temporary values) and redirecting to another page.
 
 Params:
 * `req`: the current request
-* `next`: call this after filling `res`. First parameter is the error (if you want to abort), second parameter is the datas to store, third parameter the page where the user should be redirected
+* `next`: call this after filling `res`. First parameter is the error (if you want to abort), second parameter is the data to store, third parameter the page where the user should be redirected
 
 Example:
 ```javascript
@@ -78,8 +78,8 @@ var initAccount = function(req, res, next) {
 ```
 
 #### `connectAccountRetrievePreDatasIdentifier`
-This function should return an object hash uniquely identifying the preDatas previously sent.
-To build this hash, you can use `req` containing all datas about the current request (and possibly a callback code, the previous grant, ... depending on your OAuth provider).
+This function should return an object hash uniquely identifying the `preDatas` previously sent.
+To build this hash, you can use `req` containing all data about the current request (and possibly a callback code, the previous grant, ... depending on your OAuth provider).
 
 > Please note : for now, you need to prefix each of your key with `data.`. This will probably be modified in the future.
 > For instance `{'datas.accessGrant': req.params.code}`.
@@ -96,13 +96,13 @@ var connectAccountRetrievePreDatasIdentifier = function(req, next) {
 ```
 
 #### `connectAccountRetrieveAuthDatas`
-This function will be called to retrieve a set of datas to store permanently.
+This function will be called to retrieve a set of data to store permanently.
 Store your tokens (refresh tokens, access tokens) or any other informations.
 
 Params:
 * `req`: the current request. Access GET values in `req.params`.
-* `preDatas` datas stored previously, as returned by `initAccount`
-* `next`: call this with the error if any (token is invalid, preDatas are out of date, ...) and the datas to store permanently. Third parameter can optionally be the redirect page, if blank it will be `anyfetch.com`.
+* `preDatas` data stored previously, as returned by `initAccount`
+* `next`: call this with the error if any (token is invalid, `preDatas` are out of date, ...) and the data to store permanently. Third parameter can optionally be the redirect page, if blank it will be `anyfetch.com`.
 
 Example:
 ```javascript
@@ -118,7 +118,7 @@ var connectAccountRetrieveAuthDatas = function(req, preDatas, next) {
 This function will be called periodically to update documents. Calls will occur:
 * when the user ping `/update` on AnyFetch API
 * right after connecting the provider for the first time
-* after a span of time, when AnyFetch server deems new datas can be gathered.
+* after a span of time, when AnyFetch server estimates new data can be gathered.
 
 This function must return a list of task, each task being a document to create or update on AnyFetch.
 This tasks will be fed to `queueWorker` (see below).
@@ -126,7 +126,7 @@ The function must also return a cursor (for instance, the current date) to remem
 
 
 Params:
-* `datas`: datas stored by `connectAccountRetrieveAuthDatas`
+* `datas`: data stored by `connectAccountRetrieveAuthDatas`
 * `cursor`: last cursor, or null on first run.
 * `next`: call this with the error if any (grant has been revoked, ...), the list of tasks to feed to `queueWorker` and the new cursor (it will be written after all tasks are processed).
 
@@ -143,11 +143,11 @@ var updateAccount = function(datas, cursor, next) {
 ```
 
 ##### Sending in multiple times
-Sometimes, to send big chunks of datas, you may need to send a first batch of tasks. To do this, just call `next` with an error and an array (without a new cursor). You can do this as many time as you like, once you're done just call next with the new cursor as third parameter.
+Sometimes, to send big chunks of data, you may need to send a first batch of tasks. To do this, just call `next` with an error and an array (without a new cursor). You can do this as many time as you like, once you're done just call next with the new cursor as third parameter.
 
 ```javascript
-// For big tasks (multiple gigabytes of datas / asynchronous retrieval of tasks /...)
-var updateAccount = function(datas, cursor, next) {
+// For big tasks (multiple gigabytes of data / asynchronous retrieval of tasks /...)
+var updateAccount = function(data, cursor, next) {
   // Update the account !
   var tasks1 = [...];
   next(null, tasks1);
@@ -160,10 +160,10 @@ var updateAccount = function(datas, cursor, next) {
   // Warning; once a call to next with a new cursor has been made, you can't queue anymore.
 };
 ```
-##### Updating your datas
+##### Updating your data
 Some providers update their tokens with time, or have one-time-use refresh tokens.
-To handle such a case, you can use a fourth parameter which is a function to update your datas.
-All tasks pushed after the call to this function will use the new datas.
+To handle such a case, you can use a fourth parameter which is a function to update your data.
+All tasks pushed after the call to this function will use the new data.
 
 ```javascript
 var updateAccount = function(datas, cursor, next, updateDatas) {
@@ -183,7 +183,7 @@ It must send the document to AnyFetch using the client available on `anyfetchCli
 Params:
 * `task` the task defined previously.
 * `anyfetchClient` pre-configured client for upload (with appId, appSecret and accessToken)
-* `datas` datas for the account being updated
+* `datas` data for the account being updated
 * `cb` call this once document is uploaded and you're ready for another task
 
 ```javascript
@@ -198,8 +198,8 @@ For most use case, you'll be able to simplify the initial `initAccount` / `conne
 
 You'll simply have to:
 * Use `{code: req.params.code}` as `preDatas` (second argument of `initAccount` `next()` function)
-* Return a `redirectUrl` (third argument of `initAccount` `next()` function) including this code param for later retrieval. Most OAuth provider will let you use a `?state=` parameter to forward datas between initialization and validation.
-* Return `{'datas.code': req.params.state}` (replace `state` with whatever way you have to remember the initial code) as the `preDatasIdentifier` (second argument of  `connectAccountRetrievePreDatasIdentifier` `next()` function). Remember : this object serves as a simple identifier to retrieve the datas you stored before, but in this simple use case we didn't store additional datas over the `code` parameter.
+* Return a `redirectUrl` (third argument of `initAccount` `next()` function) including this code param for later retrieval. Most OAuth provider will let you use a `?state=` parameter to forward data between initialization and validation.
+* Return `{'datas.code': req.params.state}` (replace `state` with whatever way you have to remember the initial code) as the `preDatasIdentifier` (second argument of  `connectAccountRetrievePreDatasIdentifier` `next()` function). Remember : this object serves as a simple identifier to retrieve the data you stored before, but in this simple use case we didn't store additional data over the `code` parameter.
 * Return final credentials in `datas` (second argument of `connectAccountRetrieveAuthDatas` `next()`)
 
 ### Optional parameters
@@ -223,8 +223,8 @@ server.post('/delta', function(req, res, next) {
 
 ## Helper functions
 ### `retrieveDatas(hash, function(err, datas))`
-Retrieve datas associated with the `hash`. `hash` must be a unique identifier in all account.
-You'll need to prefix the key with `datas.` to search in your datas.
+Retrieve data associated with the `hash`. `hash` must be a unique identifier in all account.
+You'll need to prefix the key with `datas.` to search in your data.
 
 ### `debug.cleanTokens(cb)`
 Crean all token and temp tokens, use as `before()` for Mocha tests.

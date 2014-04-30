@@ -284,7 +284,7 @@ describe("AnyFetchProvider.createServer()", function() {
 
     it("should disable updating while updating", function(done) {
       var server = AnyFetchProvider.createServer(config);
-
+      server.listen(8745);
       updateServer(server, function(err) {
         if(err) {
           throw err;
@@ -297,6 +297,9 @@ describe("AnyFetchProvider.createServer()", function() {
             api_url: 'http://api.anyfetch.com'
           })
           .expect(204)
+          .expect(function() {
+            server.close();
+          })
           .end(done);
       });
     });

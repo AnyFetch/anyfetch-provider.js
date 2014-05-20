@@ -17,10 +17,10 @@
     "provider"
   ],
   "dependencies": {
-    "async": "0.7.x",
-    "restify": "2.7.x",
+    "async": "0.9.x",
+    "restify": "2.8.x",
     "request": "2.x.x",
-    "anyfetch": ">=0.2.15",
+    "anyfetch": ">=0.2.18",
     "mongoose": "3.8.x"
   },
   "devDependencies": {

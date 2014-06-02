@@ -13,28 +13,28 @@ var accessGrant = "fakeAccessGrant";
 
 
 var initAccount = function(req, next) {
-  var preDatas = {
+  var preData = {
     accessGrant: accessGrant
   };
-  next(null, preDatas, 'http://localhost');
+  next(null, preData, 'http://localhost');
 };
 
-var connectAccountRetrievePreDatasIdentifier = function(req, next) {
+var connectAccountRetrievePreDataIdentifier = function(req, next) {
   // Retrieve temp token
-  next(null, {'datas.accessGrant': accessGrant});
+  next(null, {'data.accessGrant': accessGrant});
 };
 
-var connectAccountRetrieveAuthDatas = function(req, preDatas, next) {
-  var datas = preDatas.accessGrant + "_accessToken";
-  next(null, datas);
+var connectAccountRetrieveAuthData = function(req, preData, next) {
+  var data = preData.accessGrant + "_accessToken";
+  next(null, data);
 };
 
-var updateAccount = function(datas, cursor, next) {
+var updateAccount = function(data, cursor, next) {
   // Update the account !
   next(null, [], new Date());
 };
 
-var queueWorker = function(task, anyfetchClient, datas, cb) {
+var queueWorker = function(task, anyfetchClient, data, cb) {
   // Upload document
   cb();
 };
@@ -44,8 +44,8 @@ var resetConfig = function() {
   // Reset config to pristine state
   config = {
     initAccount: initAccount,
-    connectAccountRetrievePreDatasIdentifier: connectAccountRetrievePreDatasIdentifier,
-    connectAccountRetrieveAuthDatas: connectAccountRetrieveAuthDatas,
+    connectAccountRetrievePreDataIdentifier: connectAccountRetrievePreDataIdentifier,
+    connectAccountRetrieveAuthData: connectAccountRetrieveAuthData,
     updateAccount: updateAccount,
     queueWorker: queueWorker,
 
@@ -108,13 +108,13 @@ describe("AnyFetchProvider.createServer()", function() {
         .end(done);
     });
 
-    it("should store datas returned by initAccount() in TempToken", function(done) {
+    it("should store data returned by initAccount() in TempToken", function(done) {
       var initAccount = function(req, next) {
-        var preDatas = {
+        var preData = {
           "foo": "bar"
         };
 
-        next(null, preDatas, 'http://localhost');
+        next(null, preData, 'http://localhost');
       };
 
       config.initAccount = initAccount;
@@ -128,7 +128,7 @@ describe("AnyFetchProvider.createServer()", function() {
             throw err;
           }
 
-          TempToken.findOne({'datas.foo': 'bar'}, function(err, tempToken) {
+          TempToken.findOne({'data.foo': 'bar'}, function(err, tempToken) {
             if(err) {
               return done(err);
             }
@@ -141,7 +141,7 @@ describe("AnyFetchProvider.createServer()", function() {
         });
     });
 
-    it("should retrieve datas on TempToken", function(done) {
+    it("should retrieve data on TempToken", function(done) {
       // Fake AnyFetch server handling access token scheme
       process.env.ANYFETCH_SETTINGS_URL = 'http://localhost:1337';
 
@@ -149,36 +149,36 @@ describe("AnyFetchProvider.createServer()", function() {
       var frontServer = AnyFetch.debug.createTestFrontServer();
       frontServer.listen(1337);
 
-      var originalPreDatas = {
+      var originalPreData = {
         'key': 'retrieval',
         'something': 'data'
       };
 
       async.series([
         function(cb) {
-          // Fake a call to /init/connect returned this datas
+          // Fake a call to /init/connect returned this data
           var tempToken = new TempToken({
             anyfetchCode: 'anyfetch_token',
-            datas: originalPreDatas
+            data: originalPreData
           });
 
           tempToken.save(cb);
         },
         function(cb) {
-          var connectAccountRetrievePreDatasIdentifier = function(req, next) {
+          var connectAccountRetrievePreDataIdentifier = function(req, next) {
             // Retrieve temp token
-            next(null, {'datas.key': req.params.code});
+            next(null, {'data.key': req.params.code});
           };
 
-          var connectAccountRetrieveAuthDatas = function(req, preDatas, next) {
-            preDatas.should.eql(originalPreDatas);
+          var connectAccountRetrieveAuthData = function(req, preData, next) {
+            preData.should.eql(originalPreData);
             next(null, {
               'final': 'my-code'
             });
           };
 
-          config.connectAccountRetrievePreDatasIdentifier = connectAccountRetrievePreDatasIdentifier;
-          config.connectAccountRetrieveAuthDatas = connectAccountRetrieveAuthDatas;
+          config.connectAccountRetrievePreDataIdentifier = connectAccountRetrievePreDataIdentifier;
+          config.connectAccountRetrieveAuthData = connectAccountRetrieveAuthData;
 
           var server = AnyFetchProvider.createServer(config);
 
@@ -189,7 +189,7 @@ describe("AnyFetchProvider.createServer()", function() {
               throw err;
             }
 
-            Token.findOne({'datas.final': 'my-code'}, function(err, token) {
+            Token.findOne({'data.final': 'my-code'}, function(err, token) {
               if(err) {
                 return cb(err);
               }
@@ -232,7 +232,7 @@ describe("AnyFetchProvider.createServer()", function() {
       // Create a token, as-if /init/ workflow was properly done
       token = new Token({
         anyfetchToken: 'thetoken',
-        datas: {
+        data: {
           foo: 'bar'
         }
       });
@@ -356,7 +356,7 @@ describe("AnyFetchProvider.createServer()", function() {
 
       var tasks = {a:3};
 
-      var updateAccount = function(datas, cursor, next) {
+      var updateAccount = function(data, cursor, next) {
         // Update the account !
         try {
           next(null, tasks, new Date());
@@ -379,16 +379,16 @@ describe("AnyFetchProvider.createServer()", function() {
       var tasks = [{a:1}, {a:2}, {a:3}];
       var counter = 1;
 
-      var updateAccount = function(datas, cursor, next) {
+      var updateAccount = function(data, cursor, next) {
         // Update the account !
         next(null, tasks, new Date());
       };
 
-      var queueWorker = function(task, anyfetchClient, datas, cb) {
+      var queueWorker = function(task, anyfetchClient, data, cb) {
         // Upload document
         task.should.have.property('a').within(1, 3);
         anyfetchClient.should.have.property('sendDocument');
-        datas.should.have.property('foo', 'bar');
+        data.should.have.property('foo', 'bar');
 
         counter += 1;
         if(counter === tasks.length) {
@@ -409,7 +409,7 @@ describe("AnyFetchProvider.createServer()", function() {
       var tasks2 = [4, 5];
       var counter = 1;
 
-      var updateAccount = function(datas, cursor, next) {
+      var updateAccount = function(data, cursor, next) {
         // Send first batch
         next(null, tasks1);
         async.nextTick(function() {
@@ -417,7 +417,7 @@ describe("AnyFetchProvider.createServer()", function() {
         });
       };
 
-      var queueWorker = function(task, anyfetchClient, datas, cb) {
+      var queueWorker = function(task, anyfetchClient, data, cb) {
         counter += 1;
         if(counter === tasks1.length + tasks2.length) {
           done();
@@ -433,7 +433,7 @@ describe("AnyFetchProvider.createServer()", function() {
     });
 
     it("should forbid to send task after a newcursor", function(done) {
-      var updateAccount = function(datas, cursor, next) {
+      var updateAccount = function(data, cursor, next) {
         // Send first batch with a cursor
         next(null, [1,2,3], new Date());
         // Second batch should be refused
@@ -452,12 +452,12 @@ describe("AnyFetchProvider.createServer()", function() {
       updateServer(server);
     });
 
-    it("should allow to update token datas", function(done) {
+    it("should allow to update token data", function(done) {
       var tasks = [{}];
 
-      var updateAccount = function(datas, cursor, next, updateDatas) {
-        datas.newKey = 'newValue';
-        updateDatas(datas, function(err) {
+      var updateAccount = function(data, cursor, next, updateData) {
+        data.newKey = 'newValue';
+        updateData(data, function(err) {
           if(err) {
             throw err;
           }
@@ -467,17 +467,17 @@ describe("AnyFetchProvider.createServer()", function() {
               throw err;
             }
 
-            token.should.have.property('datas');
-            token.datas.should.have.property('newKey', 'newValue');
+            token.should.have.property('data');
+            token.data.should.have.property('newKey', 'newValue');
 
             next(null, tasks, new Date());
           });
         });
       };
 
-      var queueWorker = function(task, anyfetchClient, datas, cb) {
+      var queueWorker = function(task, anyfetchClient, data, cb) {
         // Upload document
-        datas.should.have.property('newKey', 'newValue');
+        data.should.have.property('newKey', 'newValue');
 
         done();
         cb();
@@ -494,14 +494,14 @@ describe("AnyFetchProvider.createServer()", function() {
       var tasks = [{}, {}, {}];
       var counter = 1;
 
-      var updateAccount = function(datas, cursor, next) {
+      var updateAccount = function(data, cursor, next) {
         // Update the account !
         next(null, tasks, "newcursor");
       };
 
       async.waterfall([
         function(cb) {
-          var queueWorker = function(task, anyfetchClient, datas, cb2) {
+          var queueWorker = function(task, anyfetchClient, data, cb2) {
             counter += 1;
             if(counter === tasks.length) {
               async.nextTick(cb);
@@ -533,7 +533,7 @@ describe("AnyFetchProvider.createServer()", function() {
     });
 
     it("should catch failures", function(done) {
-      config.updateAccount = function(datas, cursor, next) {
+      config.updateAccount = function(data, cursor, next) {
         // Update the account !
         next(null, [{}], new Date());
       };
@@ -558,7 +558,7 @@ describe("AnyFetchProvider.createServer()", function() {
       // Create a token, as-if /init/ workflow was properly done
       var token = new Token({
         anyfetchToken: 'thetoken',
-        datas: {
+        data: {
           foo: 'bar'
         },
         cursor: 'current-cursor'
@@ -625,7 +625,7 @@ describe("AnyFetchProvider.createServer()", function() {
       // Create a token, as-if /init/ workflow was properly done
       token = new Token({
         anyfetchToken: 'thetoken',
-        datas: {
+        data: {
           foo: 'bar'
         },
         cursor: 'current-cursor'
@@ -667,7 +667,7 @@ describe("AnyFetchProvider.createServer()", function() {
         })
         .expect(200)
         .expect(function(res) {
-          res.body.should.have.keys(['anyfetch_token', 'datas', 'cursor', 'is_updating', 'last_update']);
+          res.body.should.have.keys(['anyfetch_token', 'data', 'cursor', 'is_updating', 'last_update']);
         })
         .end(done);
     });

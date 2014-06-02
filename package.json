@@ -10,7 +10,7 @@
   "main": "./lib/",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Papiel/anyfetch-provider.js"
+    "url": "https://github.com/AnyFetch/anyfetch-provider.js"
   },
   "keywords": [
     "anyfetch",

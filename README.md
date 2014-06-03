@@ -1,8 +1,8 @@
 AnyFetch provider
 ======================
 
-[![Build Status](https://travis-ci.org/Papiel/anyfetch-provider.js.png?branch=master)](https://travis-ci.org/Papiel/anyfetch-provider.js)[![Dependency Status](https://gemnasium.com/Papiel/anyfetch-provider.js.png)](https://gemnasium.com/Papiel/anyfetch-provider.js)
-[![Coverage Status](https://coveralls.io/repos/Papiel/anyfetch-provider.js/badge.png?branch=master)](https://coveralls.io/r/Papiel/anyfetch-provider.js?branch=master)
+[![Build Status](https://travis-ci.org/AnyFetch/anyfetch-provider.js.png?branch=master)](https://travis-ci.org/AnyFetch/anyfetch-provider.js)[![Dependency Status](https://gemnasium.com/AnyFetch/anyfetch-provider.js.png)](https://gemnasium.com/AnyFetch/anyfetch-provider.js)
+[![Coverage Status](https://coveralls.io/repos/AnyFetch/anyfetch-provider.js/badge.png?branch=master)](https://coveralls.io/r/AnyFetch/anyfetch-provider.js?branch=master)
 [![NPM version](https://badge.fury.io/js/anyfetch-provider.png)](http://badge.fury.io/js/anyfetch-provider)
 
 NodeJS toolkit for creating [anyFetch](http://anyfetch.com) providers.
@@ -12,7 +12,7 @@ If you want to add a new service to AnyFetch (as a document entry point), you sh
 
 This toolkit enables you to bridge a given service to the anyFetch api by mounting a server receiving calls from both sides (ie. the service and AnyFetch).
 
-Use [Provider boilerplate](https://github.com/Papiel/provider-boilerplate) to generate a new project stub.
+Use [Provider boilerplate](https://github.com/AnyFetch/provider-boilerplate) to generate a new project stub.
 
 ## Installation and documentation
 
@@ -26,7 +26,7 @@ var server = AnyFetchProvider.createServer(configHash);
 ```
 
 ## Configuration hash
-> Too lazy to read the doc? Why not check out real use-case from open-source code! For a simple use case, take a look on this file from the [Google Contacts provider](https://github.com/Papiel/gcontacts.provider.anyfetch.com/blob/master/lib/index.js). For more advanced use-case with file upload, see [Dropbox provider](https://github.com/Papiel/dropbox.provider.anyfetch.com/blob/master/lib/index.js).
+> Too lazy to read the doc? Why not check out real use-case from open-source code! For a simple use case, take a look on this file from the [Google Contacts provider](https://github.com/AnyFetch/gcontacts.provider.anyfetch.com/blob/master/lib/index.js). For more advanced use-case with file upload, see [Dropbox provider](https://github.com/AnyFetch/dropbox.provider.anyfetch.com/blob/master/lib/index.js).
 
 You need to specify some handlers and data in the `configHash`.
 

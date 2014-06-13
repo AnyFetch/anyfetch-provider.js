@@ -19,7 +19,6 @@
   "dependencies": {
     "async": "0.9.x",
     "restify": "2.8.x",
-    "request": "2.x.x",
     "anyfetch": ">=0.2.23",
     "mongoose": "3.8.x"
   },

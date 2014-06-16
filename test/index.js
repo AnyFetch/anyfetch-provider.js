@@ -143,7 +143,7 @@ describe("AnyFetchProvider.createServer()", function() {
 
     it("should retrieve data on TempToken", function(done) {
       // Fake AnyFetch server handling access token scheme
-      process.env.ANYFETCH_SETTINGS_URL = 'http://localhost:1337';
+      process.env.ANYFETCH_MANAGER_URL = 'http://localhost:1337';
 
       // Create a fake HTTP server
       var frontServer = AnyFetch.debug.createTestFrontServer();
@@ -247,7 +247,7 @@ describe("AnyFetchProvider.createServer()", function() {
       request(server)
         .post('/update')
         .send({
-          api_url: process.env.ANYFETCH_SETTINGS_URL
+          api_url: process.env.ANYFETCH_MANAGER_URL
         })
         .expect(409)
         .expect(/access_token/)
@@ -344,7 +344,7 @@ describe("AnyFetchProvider.createServer()", function() {
             .post('/update')
             .send({
               access_token: token.anyfetchToken,
-              api_url: process.env.ANYFETCH_SETTINGS_URL
+              api_url: process.env.ANYFETCH_MANAGER_URL
             })
             .expect(202)
             .end(done);

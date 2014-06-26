@@ -1,9 +1,15 @@
 "use strict";
-var serviceLib = {};
+// Lib to interact with external services
+var serviceLib = require('some-lib-for-my-service');
+
+var AnyFetchProvider = require('anyfetch-provider');
 
 
 var config = {
+  // Anyfetch app id
   app_id: "you_app_id",
+
+  // Anyfetch app secret
   app_secret: "you_app_id",
 };
 
@@ -14,10 +20,10 @@ var connectFunctions = {
   //   * err
   //   * url to redirect to
   //   * data to store (if any)
-  redirectToService: function redirectToService(callbackUrl, next) {
+  redirectToService: function redirectToService(callbackUrl, cb) {
     serviceLib.generateRedirectUrl(function(err, redirectUrl) {
       redirectUrl += "&callback=" + encodeURI(callbackUrl);
-      next(null, redirectUrl, {
+      cb(null, redirectUrl, {
         token: '123'
       });
     });
@@ -29,9 +35,9 @@ var connectFunctions = {
   // OUT :
   //   * err
   //   * service data to permanently store
-  retrieveTokens: function retrieveTokens(reqParams, storedParams, next) {
+  retrieveTokens: function retrieveTokens(reqParams, storedParams, cb) {
     serviceLib.generateAccessToken(reqParams.code, function(err, accessToken) {
-      next(null, {
+      cb(null, {
         accessToken: accessToken,
         account: storedParams.account
       });
@@ -47,7 +53,7 @@ var connectFunctions = {
 //   * err
 //   * new cursor
 //   * new serviceData to replace previous ones (if any)
-var updateAccount = function updateAccount(serviceData, cursor, queues, next) {
+var updateAccount = function updateAccount(serviceData, cursor, queues, cb) {
   serviceLib.retrieveDelta(cursor, function(err, createdFiles, deletedFiles) {
     createdFiles.forEach(function(task) {
       queues.additions.push(task);
@@ -57,7 +63,7 @@ var updateAccount = function updateAccount(serviceData, cursor, queues, next) {
       queues.deletions.push(task);
     });
 
-    next();
+    cb();
   });
 };
 
@@ -68,13 +74,16 @@ var updateAccount = function updateAccount(serviceData, cursor, queues, next) {
 // OUT :
 //   * err
 var workers = {
-  'additions': function(task, anyfetchClient, serviceData, next) {
-    anyfetchClient.sendDocument(task, next);
+  'additions': function(task, anyfetchClient, serviceData, cb) {
+    anyfetchClient.sendDocument(task, cb);
   },
-  'deletions': function(task, anyfetchClient, serviceData, next) {
-    anyfetchClient.deleteDocument(task, next);
+  'deletions': function(task, anyfetchClient, serviceData, cb) {
+    anyfetchClient.deleteDocument(task, cb);
   }
 };
+
+// Set concurrency. Defaults to 5
+workers.additions.concurrency = 5;
 
 
 var server = AnyFetchProvider.createServer(config, connectFunctions, updateAccount, workers);

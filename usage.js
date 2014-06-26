@@ -7,10 +7,10 @@ var AnyFetchProvider = require('anyfetch-provider');
 
 var config = {
   // Anyfetch app id
-  app_id: "you_app_id",
+  app_id: "your_app_id",
 
   // Anyfetch app secret
-  app_secret: "you_app_id",
+  app_secret: "your_app_secret",
 };
 
 var connectFunctions = {
@@ -82,8 +82,8 @@ var workers = {
   }
 };
 
-// Set concurrency. Defaults to 5
-workers.additions.concurrency = 5;
+// Set concurrency. Defaults to 5 for non specified workers.
+workers.additions.concurrency = 10;
 
 
 var server = AnyFetchProvider.createServer(config, connectFunctions, updateAccount, workers);

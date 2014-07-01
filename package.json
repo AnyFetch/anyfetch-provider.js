@@ -1,7 +1,7 @@
 {
   "name": "anyfetch-provider",
   "description": "Create providers for Anyfetch.",
-  "version": "0.3.16",
+  "version": "0.3.17",
   "author": "Matthieu Bacconnier <matthieu@papiel.fr>",
   "scripts": {
     "test": "NODE_ENV=test mocha -R spec test/",
@@ -19,7 +19,7 @@
   "dependencies": {
     "async": "0.9.x",
     "restify": "2.8.x",
-    "anyfetch": ">=0.2.25",
+    "anyfetch": "0.2.26",
     "mongoose": "3.8.x"
   },
   "devDependencies": {

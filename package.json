@@ -19,7 +19,7 @@
   "dependencies": {
     "async": "0.9.x",
     "restify": "2.8.x",
-    "anyfetch": "^0.2.25",
+    "anyfetch": "0.2.26",
     "mongoose": "3.8.x"
   },
   "devDependencies": {

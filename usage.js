@@ -68,17 +68,18 @@ var updateAccount = function updateAccount(serviceData, cursor, queues, cb) {
 };
 
 // IN :
-//   * task to process
-//   * pre-configured anyfetchClient
-//   * serviceData returned by retrieveTokens
+//   * job, with preconfigured keys:
+//     * task: data to process
+//     * anyfetchClient: pre-configured client
+//     * serviceData: as returned by retrieveTokens
 // OUT :
 //   * err
 var workers = {
-  'additions': function(task, anyfetchClient, serviceData, cb) {
-    anyfetchClient.sendDocument(task, cb);
+  'additions': function(job, cb) {
+    job.anyfetchClient.sendDocument(job.task, cb);
   },
-  'deletions': function(task, anyfetchClient, serviceData, cb) {
-    anyfetchClient.deleteDocument(task, cb);
+  'deletions': function(job, cb) {
+    job.anyfetchClient.deleteDocument(job.task, cb);
   }
 };
 

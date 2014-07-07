@@ -10,7 +10,7 @@ NodeJS toolkit for creating [anyFetch](http://anyfetch.com) providers.
 ## Introduction
 If you want to add a new service to AnyFetch (as a document entry point), you should use this tiny toolkit.
 
-This toolkit lets you bridge a given service to the anyFetch api by mounting a server receiving calls from both sides (ie. the service and AnyFetch).
+This toolkit lets you bridge a given service to the anyFetch api by mounting a server receiving calls from both sides (ie. the service and AnyFetch API).
 
 Use [Provider boilerplate](https://github.com/AnyFetch/provider-boilerplate) to generate a new project stub.
 
@@ -18,7 +18,7 @@ Use [Provider boilerplate](https://github.com/AnyFetch/provider-boilerplate) to 
 
 `npm install anyfetch-provider`
 
-Here is a sample use:
+Here is a sample usage:
 
 ```js
 // See syntax below
@@ -31,7 +31,7 @@ server.listen();
 > Too lazy to read the doc? Why not check out real use-case from open-source code! For a simple use case, take a look on this file from the [Google Contacts provider](https://github.com/AnyFetch/gcontacts.provider.anyfetch.com/blob/master/lib/index.js). For more advanced use-case with file upload, see [Dropbox provider](https://github.com/AnyFetch/dropbox.provider.anyfetch.com/blob/master/lib/index.js).
 
 #### `connectFunctions`
-The first parameter to `AnyFetchProvider.createServer()` is a set of functions handling the OAuth part on the provider side (the OAuth part on Anyfetch side is automatically handled for you by the lib).
+The first parameter to pass to `AnyFetchProvider.createServer()` is a set of functions handling the OAuth part on the provider side (the OAuth flow on Anyfetch side is automatically handled for you by the lib).
 
 ```js
 var connectFunctions = {
@@ -44,18 +44,21 @@ var connectFunctions = {
   redirectToService: function redirectToService(callbackUrl, cb) {
     serviceLib.generateRedirectUrl(function(err, redirectUrl) {
       redirectUrl += "&callback=" + encodeURI(callbackUrl);
-      cb(null, redirectUrl, {
-        token: '123'
-      });
+
+      var dataToStore = {
+        foo: 'bar'
+      };
+
+      cb(null, redirectUrl, dataToStore);
     });
   },
 
   // IN :
-  //   * GET params from the incoming request,
-  //   * Params returned by previous function
+  //   * GET params from the incoming request (probably the result from a consent screen),
+  //   * Params returned by previous function redirectToService
   // OUT :
   //   * err
-  //   * account name, current account identifier (email address from the user for instance)
+  //   * account name, current account identifier on the service (email address from the user for instance)
   //   * service data to permanently store
   retrieveTokens: function retrieveTokens(reqParams, storedParams, cb) {
     serviceLib.generateAccessToken(reqParams.code, function(err, accessToken) {
@@ -70,25 +73,27 @@ var connectFunctions = {
 };
 ```
 
-The first function, `redirectToService` will be invoked when a user asks to connect his AnyFetch account with your provider. It is responsible for redirecting the user to your provider consent page.
+The first function, `redirectToService` will be invoked when a user asks to connect his AnyFetch account with your provider. It is responsible for providing an URL to your provider consent page.
 
 It takes as parameter a `callbackUrl` (of the form `https://your.provider.address/init/callback`). It is up to you to ensure the user is redirected to this URL after giving consent on the `redirectUrl` page.
-The second parameter of the `cb` can be data that need to be stored. The lib will reinject this data on its next call to `retrieveTokens` (in `storedParams`). 
+The second parameter of the `cb` can be data that needs to be stored. The lib will reinject this data on its next call to `retrieveTokens` (in `storedParams`).
+
+> This behavior can be useful when you need to store `code` or `requestTokens`. In most of the case however, you're safe to leave this empty.
 
 The second function, `retrieveTokens`, will be invoked when the user has given his permission.
 
-It takes as parameter a `reqParams` object, which contain all GET params sent to the previous `callbackUrl`. It will also get access in `storedParams` to data you sent to the first callback.
-You're responsible for invoking the `cb` with any error, the account name from the user and all the final data you wish to store internally -- in most case, this will include at least a refresh token, but this can be anything as long as it's an object.
+It takes as parameter a `reqParams` object, which contain all GET params sent to the previous `callbackUrl`. It will also get access in `storedParams` to data you sent to the callback in `redirectToService`.
+You're responsible for invoking the `cb` with any error, the account name from the user and all the final data you wish to store internally—in most case, this will include at least a refresh token, but this can be anything as long as it's a valid JavasScript object.
 
 #### `updateAccount`
-This function will be invoked when the user asks to update his account with new data.
+This function will be invoked whenever the user asks to update his account with new data from your provider.
 
-In order to do so, a `cursor` parameter is sent -- you'll return it at the end of the function, updated, to match the new state (either an internal cursor sent from your provider, or the current date)
+In order to do so, a `cursor` parameter is sent—you'll return it at the end of the function, updated, to match the new state (either an internal cursor sent from your provider, or the current date).
 
 ```js
 // IN :
 //   * serviceData returned by retrieveTokens
-//   * last cursor returned by this function, or null
+//   * last cursor returned by this function, or null on the first update
 //   * Queues to use
 // OUT :
 //   * err
@@ -113,14 +118,14 @@ var updateAccount = function updateAccount(serviceData, cursor, queues, cb) {
 
 It takes as parameter the data you sent to `retrieveTokens`, the `cursor` that was sent during the last invokation of `updateAccount` or `null` if this is the first run.
 
-You can then start pushing tasks onto the different queues -- more on that on next section.
+You can then start pushing tasks onto the different queues—more on that on next section.
 
 #### `workers`
-Workers are responsible for "working" on the tasks returned by `updateAccount`. Keep in mind they are shared for all users of your lib, and should therefore not rely on any external state or context.
+Workers are functions responsible for handling the tasks returned by `updateAccount`. Keep in mind they are shared for all users of your lib, and should therefore not rely on any external state or context.
 
 `workers` must be an object where each key is a specific worker with specific options. For nearly all use-cases, you'll only need two workers: one for additions (sending new and updated documents from your provider to AnyFetch) and one for deletions (deleting documents onto AnyFetch).
 
-A worker is a simple function taking two parameters: a job, and a cb to invoke with an error if any.
+A worker is a simple function taking two parameters: a job, and a `cb` to invoke with an error if any.
 
 ```js
 // IN :
@@ -132,10 +137,10 @@ A worker is a simple function taking two parameters: a job, and a cb to invoke w
 //   * err
 var workers = {
   'additions': function(job, cb) {
-    job.anyfetchClient.sendDocument(job.task, cb);
+    job.anyfetchClient.postDocument(job.task, cb);
   },
   'deletions': function(job, cb) {
-    job.anyfetchClient.deleteDocument(job.task, cb);
+    job.anyfetchClient.deleteDocumentById(job.task.id, cb);
   }
 };
 ```
@@ -148,11 +153,11 @@ The `job` parameter contains 3 keys:
 
 `cb` does not take any additional params after the error.
 
-##### Faster ?
-For each worker, you can set the concurrency -- the number of parallel tasks that will be running to unstack all tasks. Default is 1, but you can increase this value using the `concurrency` property:
+##### Faster?
+For each worker, you can set the concurrency—the number of parallel tasks that will be running to unstack all tasks. Default is 1, but you can increase this value using the `concurrency` property:
 
 ```js
-// Set concurrency. Defaults to 5 for non specified workers.
+// Set concurrency. Defaults to 1 when unspecified.
 workers.additions.concurrency = 10;
 ```
 

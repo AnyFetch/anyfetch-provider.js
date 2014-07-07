@@ -186,4 +186,4 @@ server.listen();
 
 
 #### Configuring Mongo and Redis
-By default, the lib will read values from `process.env.MONGO_URL` and `process.env.REDIS_URL` to connect to external services. You can override this behavior using `config.redisUrl` and `config.MongoUrl`.
+By default, the lib will read values from `process.env.MONGO_URL` and `process.env.REDIS_URL` to connect to external services. You can override this behavior using `config.redisUrl` and `config.mongoUrl`.

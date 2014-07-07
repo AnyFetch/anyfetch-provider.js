@@ -236,6 +236,24 @@ describe("AnyFetchProvider.createServer()", function() {
       var server = AnyFetchProvider.createServer(connectFunctions, updateAccount, {test: queueWorker}, config);
       updateServer(server);
     });
+
+    it("should allow to update token data", function(done) {
+      // We need to use test2 queue instead of test because this event worker can't override the last worker in the last test
+      var updateAccount = function(serviceData, cursor, queues, cb) {
+        serviceData.newKey = 'newValue';
+        queues.test2.push({});
+        cb(null, new Date(), serviceData);
+      };
+
+      var queueWorker = function(job, cb) {
+        job.serviceData.should.have.property('newKey', 'newValue');
+        done();
+        cb();
+      };
+
+      var server = AnyFetchProvider.createServer(connectFunctions, updateAccount, {test2: queueWorker}, config);
+      updateServer(server);
+    });
   });
 
   describe("/reset endpoint", function() {

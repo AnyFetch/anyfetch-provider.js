@@ -131,7 +131,7 @@ A worker is a simple function taking two parameters: a job, and a `cb` to invoke
 // IN :
 //   * job, with preconfigured keys:
 //     * task: data to process
-//     * anyfetchClient: pre-configured client
+//     * anyfetchClient: pre-configured client, see https://github.com/AnyFetch/anyfetch.js
 //     * serviceData: as returned by retrieveTokens, or updated by updateAccount (third optional parameter for cb)
 // OUT :
 //   * err
@@ -173,7 +173,7 @@ var config = {
   appSecret: "your_app_secret",
 
   // Server currently running
-  providerUrl: "https://your.provider.address"
+  providerUrl: "https://your.provider.address/"
 };
 ```
 

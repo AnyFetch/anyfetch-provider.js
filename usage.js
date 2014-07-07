@@ -5,14 +5,6 @@ var serviceLib = require('some-lib-for-my-service');
 var AnyFetchProvider = require('anyfetch-provider');
 
 
-var config = {
-  // Anyfetch app id
-  app_id: "your_app_id",
-
-  // Anyfetch app secret
-  app_secret: "your_app_secret",
-};
-
 var connectFunctions = {
   // IN :
   //   * callback url to ping after grant
@@ -63,7 +55,7 @@ var updateAccount = function updateAccount(serviceData, cursor, queues, cb) {
       queues.deletions.push(task);
     });
 
-    cb();
+    cb(null, new Date().toString());
   });
 };
 
@@ -87,6 +79,14 @@ var workers = {
 workers.additions.concurrency = 10;
 
 
-var server = AnyFetchProvider.createServer(config, connectFunctions, updateAccount, workers);
+var config = {
+  // Anyfetch app id
+  appId: "your_app_id",
+
+  // Anyfetch app secret
+  appSecret: "your_app_secret",
+};
+
+var server = AnyFetchProvider.createServer(connectFunctions, updateAccount, workers, config);
 
 server.listen();

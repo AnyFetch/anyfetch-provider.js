@@ -23,12 +23,14 @@ Here is a sample use:
 ```javascript
 // See syntax below
 var server = AnyFetchProvider.createServer(connectFunctions, updateAccount, workers, config);
+
+server.listen();
 ```
 
-## Parameters
+### Parameters
 > Too lazy to read the doc? Why not check out real use-case from open-source code! For a simple use case, take a look on this file from the [Google Contacts provider](https://github.com/AnyFetch/gcontacts.provider.anyfetch.com/blob/master/lib/index.js). For more advanced use-case with file upload, see [Dropbox provider](https://github.com/AnyFetch/dropbox.provider.anyfetch.com/blob/master/lib/index.js).
 
-## `connectFunctions`
+#### `connectFunctions`
 The first parameter to `AnyFetchProvider.createServer()` is a set of functions handling the OAuth part on the provider side (the OAuth part on Anyfetch side is automatically handled for you by the lib).
 
 ```
@@ -75,7 +77,7 @@ The second function, `retrieveTokens`, will be invoked when the user has given h
 It takes as parameter a `reqParams` object, which contain all GET params sent to the previous `callbackUrl`. It will also get access in `storedParams` to data you sent to the first callback.
 You're responsible for invoking the `cb` with any error, the account name from the user and all the final data you wish to store internally -- in most case, this will include at least a refresh token, but this can be anything as long as it's an object.
 
-## `updateAccount`
+#### `updateAccount`
 This function will be invoked when the user asks to update his account with new data.
 
 In order to do so, a `cursor` parameter is sent -- you'll return it at the end of the function, updated, to match the new state (either an internal cursor sent from your provider, or the current date)
@@ -91,6 +93,7 @@ In order to do so, a `cursor` parameter is sent -- you'll return it at the end o
 //   * new serviceData to replace previous ones (if any)
 var updateAccount = function updateAccount(serviceData, cursor, queues, cb) {
   serviceLib.retrieveDelta(cursor, function(err, createdFiles, deletedFiles) {
+    // Push new tasks onto the workers
     createdFiles.forEach(function(task) {
       queues.additions.push(task);
     });
@@ -99,7 +102,8 @@ var updateAccount = function updateAccount(serviceData, cursor, queues, cb) {
       queues.deletions.push(task);
     });
 
-    cb();
+    // Save new cursor
+    cb(null, new Date().toString());
   });
 };
 ```
@@ -108,8 +112,48 @@ It takes as parameter the data you sent to `retrieveTokens`, the `cursor` that w
 
 You can then start pushing tasks onto the different queues -- more on that on next section.
 
+#### `workers`
+Workers are responsible for "working" on the tasks returned by `updateAccount`. Keep in mind they are shared for all users of your lib, and should therefore not rely on any external state or context.
 
-## `config`
+`workers` must be an object where each key is a specific worker with specific options. For nearly all use-cases, you'll only need two workers: one for additions (sending new and updated documents from your provider to AnyFetch) and one for deletions (deleting documents onto AnyFetch).
+
+A worker is a simple function taking two parameters: a job, and a cb to invoke with an error if any.
+
+```js
+// IN :
+//   * job, with preconfigured keys:
+//     * task: data to process
+//     * anyfetchClient: pre-configured client
+//     * serviceData: as returned by retrieveTokens, or updated by updateAccount (third optional parameter for cb)
+// OUT :
+//   * err
+var workers = {
+  'additions': function(job, cb) {
+    job.anyfetchClient.sendDocument(job.task, cb);
+  },
+  'deletions': function(job, cb) {
+    job.anyfetchClient.deleteDocument(job.task, cb);
+  }
+};
+```
+
+The `job` parameter contains 3 keys:
+
+* `task`: the task sent by your `updateAccount` function,
+* `anyfetchClient`: a pre-configured [anyfetch client](https://github.com/AnyFetch/anyfetch.js), with simple functions to send documents and files to the API.
+* `serviceData`: the data you've registered for this access token.
+
+`cb` does not take any additional params after the error.
+
+##### Faster ?
+For each worker, you can set the concurrency -- the number of parallel tasks that will be running to unstack all tasks. Default is 1, but you can increase this value using the `concurrency` property:
+
+```js
+// Set concurrency. Defaults to 5 for non specified workers.
+workers.additions.concurrency = 10;
+```
+
+#### `config`
 The last parameters to `AnyFetchProvider.createServer()` is an object containing your application keys. You can find them on [the AnyFetch manager](https://manager.anyfetch.com).
 
 ```
@@ -124,3 +168,4 @@ var config = {
   providerUrl: "https://your.provider.address"
 };
 ```
+

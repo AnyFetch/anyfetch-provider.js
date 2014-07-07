@@ -55,12 +55,15 @@ var connectFunctions = {
   //   * Params returned by previous function
   // OUT :
   //   * err
+  //   * account name, current account identifier (email address from the user for instance)
   //   * service data to permanently store
   retrieveTokens: function retrieveTokens(reqParams, storedParams, cb) {
     serviceLib.generateAccessToken(reqParams.code, function(err, accessToken) {
-      cb(null, accountName, {
-        accessToken: accessToken,
-        account: storedParams.account
+      serviceLib.retrieveUserEmail(accessToken, function(err, userEmail) {
+        cb(null, userEmail, {
+          accessToken: accessToken,
+          account: storedParams.account
+        });
       });
     });
   }

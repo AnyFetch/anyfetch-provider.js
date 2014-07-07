@@ -21,7 +21,8 @@
     "restify": "2.8.x",
     "anyfetch": "1.0.x",
     "mongoose": "3.8.x",
-    "kue": "0.8.x"
+    "kue": "0.8.x",
+    "rarity": "2.1.x"
   },
   "devDependencies": {
     "mocha": "1.x.x",

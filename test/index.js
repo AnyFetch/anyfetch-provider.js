@@ -207,29 +207,6 @@ describe("AnyFetchProvider.createServer()", function() {
         .end(done);
     });
 
-    it("should restart update if status is updating but the queue is empty", function(done) {
-      var server = AnyFetchProvider.createServer(connectFunctions, updateAccount, {}, config);
-
-      async.waterfall([
-        // Simulate a crash (isUpdating to true, queue empty)
-        function updateToken(cb) {
-          token.isUpdating = true;
-          token.save(cb);
-        },
-        function sendUpdate(token, count, cb) {
-          request(server)
-            .post('/update')
-            .send({
-              access_token: token.anyfetchToken,
-              api_url: 'http://api.anyfetch.com'
-            })
-            .expect(202)
-            .expect('X-Restart-Forced', 'true')
-            .end(cb);
-        },
-      ], done);
-    });
-
     it("should retrieve tasks and upload them", function(done) {
 
       var tasks = [{a:1}, {a:2}, {a:3}];
@@ -253,23 +230,6 @@ describe("AnyFetchProvider.createServer()", function() {
         if(counter === tasks.length) {
           done();
         }
-        cb();
-      };
-
-      var server = AnyFetchProvider.createServer(connectFunctions, updateAccount, {test: queueWorker}, config);
-      updateServer(server);
-    });
-
-    it("should allow to update token data", function(done) {
-      var updateAccount = function(serviceData, cursor, queues, cb) {
-        serviceData.newKey = 'newValue';
-        queues.test.push({});
-        cb(null, new Date(), serviceData);
-      };
-
-      var queueWorker = function(job, cb) {
-        job.serviceData.should.have.property('newKey', 'newValue');
-        done();
         cb();
       };
 

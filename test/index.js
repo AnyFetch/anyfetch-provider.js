@@ -83,7 +83,7 @@ describe("AnyFetchProvider.createServer()", function() {
         });
     });
 
-    it("should retrieve data on TempToken"/*, function(done) {
+    it("should retrieve data on TempToken", function(done) {
       Anyfetch.setManagerUrl('http://localhost:1337');
 
       Anyfetch.createMockServer().listen(1337, function() {
@@ -129,7 +129,7 @@ describe("AnyFetchProvider.createServer()", function() {
           });
         }
       ], done);
-    }*/);
+    });
   });
 
   describe("/update endpoint", function() {

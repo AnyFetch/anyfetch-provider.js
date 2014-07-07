@@ -75,6 +75,40 @@ The second function, `retrieveTokens`, will be invoked when the user has given h
 It takes as parameter a `reqParams` object, which contain all GET params sent to the previous `callbackUrl`. It will also get access in `storedParams` to data you sent to the first callback.
 You're responsible for invoking the `cb` with any error, the account name from the user and all the final data you wish to store internally -- in most case, this will include at least a refresh token, but this can be anything as long as it's an object.
 
+## `updateAccount`
+This function will be invoked when the user asks to update his account with new data.
+
+In order to do so, a `cursor` parameter is sent -- you'll return it at the end of the function, updated, to match the new state (either an internal cursor sent from your provider, or the current date)
+
+```js
+// IN :
+//   * serviceData returned by retrieveTokens
+//   * last cursor returned by this function, or null
+//   * Queues to use
+// OUT :
+//   * err
+//   * new cursor
+//   * new serviceData to replace previous ones (if any)
+var updateAccount = function updateAccount(serviceData, cursor, queues, cb) {
+  serviceLib.retrieveDelta(cursor, function(err, createdFiles, deletedFiles) {
+    createdFiles.forEach(function(task) {
+      queues.additions.push(task);
+    });
+
+    deletedFiles.forEach(function(task) {
+      queues.deletions.push(task);
+    });
+
+    cb();
+  });
+};
+```
+
+It takes as parameter the data you sent to `retrieveTokens`, the `cursor` that was sent during the last invokation of `updateAccount` or `null` if this is the first run.
+
+You can then start pushing tasks onto the different queues -- more on that on next section.
+
+
 ## `config`
 The last parameters to `AnyFetchProvider.createServer()` is an object containing your application keys. You can find them on [the AnyFetch manager](https://manager.anyfetch.com).
 

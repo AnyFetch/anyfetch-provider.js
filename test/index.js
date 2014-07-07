@@ -33,26 +33,8 @@ var config = {
   appId: 'appId',
   appSecret: 'appSecret',
 
-  providerUrl : 'https://test.provider.anyfetch.com'
+  providerUrl : 'https://your.provider.address'
 };
-
-
-describe("AnyFetchProvider.createServer() config", function() {
-  it("should validate correct config", function(done) {
-    var ret = AnyFetchProvider.validateConfig(config);
-
-    if(ret) {
-      throw new Error("No error should be returned");
-    }
-
-    done();
-  });
-
-  it("should err on missing parameter", function(done) {
-    AnyFetchProvider.validateConfig({}).toString().should.include('appId');
-    done();
-  });
-});
 
 
 describe("AnyFetchProvider.createServer()", function() {

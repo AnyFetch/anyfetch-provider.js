@@ -10,7 +10,7 @@ NodeJS toolkit for creating [anyFetch](http://anyfetch.com) providers.
 ## Introduction
 If you want to add a new service to AnyFetch (as a document entry point), you should use this tiny toolkit.
 
-This toolkit enables you to bridge a given service to the anyFetch api by mounting a server receiving calls from both sides (ie. the service and AnyFetch).
+This toolkit lets you bridge a given service to the anyFetch api by mounting a server receiving calls from both sides (ie. the service and AnyFetch API).
 
 Use [Provider boilerplate](https://github.com/AnyFetch/provider-boilerplate) to generate a new project stub.
 
@@ -18,219 +18,180 @@ Use [Provider boilerplate](https://github.com/AnyFetch/provider-boilerplate) to 
 
 `npm install anyfetch-provider`
 
-Then:
+Here is a sample usage:
 
-```javascript
+```js
 // See syntax below
-var server = AnyFetchProvider.createServer(configHash);
+var server = AnyFetchProvider.createServer(connectFunctions, updateAccount, workers, config);
+
+server.listen();
 ```
 
-## Configuration hash
+### Parameters
 > Too lazy to read the doc? Why not check out real use-case from open-source code! For a simple use case, take a look on this file from the [Google Contacts provider](https://github.com/AnyFetch/gcontacts.provider.anyfetch.com/blob/master/lib/index.js). For more advanced use-case with file upload, see [Dropbox provider](https://github.com/AnyFetch/dropbox.provider.anyfetch.com/blob/master/lib/index.js).
 
-You need to specify some handlers and data in the `configHash`.
+#### `connectFunctions`
+The first parameter to pass to `AnyFetchProvider.createServer()` is a set of functions handling the OAuth part on the provider side (the OAuth flow on Anyfetch side is automatically handled for you by the lib).
 
-### Data
-```javascript
-configHash = {
-  anyfetchAppId: 'appId',
-  anyfetchAppSecret: 'appSecret',
-  connectUrl: 'http://myprovider.example.org/init/connect',
-  ...
-};
-```
+```js
+var connectFunctions = {
+  // IN :
+  //   * callback url to ping after grant
+  // OUT :
+  //   * err
+  //   * url to redirect to
+  //   * data to store (if any)
+  redirectToService: function redirectToService(callbackUrl, cb) {
+    serviceLib.generateRedirectUrl(function(err, redirectUrl) {
+      redirectUrl += "&callback=" + encodeURI(callbackUrl);
 
-* `anyfetchAppId`: application id from AnyFetch.
-* `anyfetchAppSecret`: application secret from AnyFetch.
-* `connectUrl`: redirect_uri registered on AnyFetch.
+      var dataToStore = {
+        foo: 'bar'
+      };
 
-### Handlers
+      cb(null, redirectUrl, dataToStore);
+    });
+  },
 
-```javascript
-configHash = {
-   ...
-  initAccount: initAccount,
-  connectAccountRetrievePreDatas: connectAccountRetrievePreDatas,
-  connectAccountRetrieveAuthDatas: connectAccountRetrieveAuthDatas,
-  updateAccount: updateAccount,
-  queueWorker: queueWorker,
-};
-```
-
-#### `initAccount`
-Called when connecting an account for the first time.
-This function is responsible to store pre-data (authorization grant, temporary values) and redirecting to another page.
-
-Params:
-* `req`: the current request
-* `next`: call this after filling `res`. First parameter is the error (if you want to abort), second parameter is the data to store, third parameter the page where the user should be redirected
-
-Example:
-```javascript
-var initAccount = function(req, res, next) {
-  var preDatas = {
-    accessGrant: accessGrant
-  };
-
-  var redirectUrl = "http://myprovider.example.org/authorize";
-  next(null, preDatas, redirectUrl);
-};
-```
-
-#### `connectAccountRetrievePreDatasIdentifier`
-This function should return an object hash uniquely identifying the `preDatas` previously sent.
-To build this hash, you can use `req` containing all data about the current request (and possibly a callback code, the previous grant, ... depending on your OAuth provider).
-
-> Please note : for now, you need to prefix each of your key with `data.`. This will probably be modified in the future.
-> For instance `{'datas.accessGrant': req.params.code}`.
-
-Params:
-* `req`: the current request. Access GET values in `req.params`.
-* `next`: call this with the error if any (your provider did not return a code, ...) and your identifier hash.
-
-Example:
-```javascript
-var connectAccountRetrievePreDatasIdentifier = function(req, next) {
-  next({'datas.accessGrant': accessGrant}, next);
-};
-```
-
-#### `connectAccountRetrieveAuthDatas`
-This function will be called to retrieve a set of data to store permanently.
-Store your tokens (refresh tokens, access tokens) or any other informations.
-
-Params:
-* `req`: the current request. Access GET values in `req.params`.
-* `preDatas` data stored previously, as returned by `initAccount`
-* `next`: call this with the error if any (token is invalid, `preDatas` are out of date, ...) and the data to store permanently. Third parameter can optionally be the redirect page, if blank it will be `anyfetch.com`.
-
-Example:
-```javascript
-var connectAccountRetrieveAuthDatas = function(req, preDatas, next) {
-  var datas = {
-    refreshToken: retrieveRefreshToken()
+  // IN :
+  //   * GET params from the incoming request (probably the result from a consent screen),
+  //   * Params returned by previous function redirectToService
+  // OUT :
+  //   * err
+  //   * account name, current account identifier on the service (email address from the user for instance)
+  //   * service data to permanently store
+  retrieveTokens: function retrieveTokens(reqParams, storedParams, cb) {
+    serviceLib.generateAccessToken(reqParams.code, function(err, accessToken) {
+      serviceLib.retrieveUserEmail(accessToken, function(err, userEmail) {
+        cb(null, userEmail, {
+          accessToken: accessToken,
+          account: storedParams.account
+        });
+      });
+    });
   }
-  next(null, datas);
 };
 ```
+
+The first function, `redirectToService` will be invoked when a user asks to connect his AnyFetch account with your provider. It is responsible for providing an URL to your provider consent page.
+
+It takes as parameter a `callbackUrl` (of the form `https://your.provider.address/init/callback`). It is up to you to ensure the user is redirected to this URL after giving consent on the `redirectUrl` page.
+The second parameter of the `cb` can be data that needs to be stored. The lib will reinject this data on its next call to `retrieveTokens` (in `storedParams`).
+
+> This behavior can be useful when you need to store `code` or `requestTokens`. In most of the case however, you're safe to leave this empty.
+
+The second function, `retrieveTokens`, will be invoked when the user has given his permission.
+
+It takes as parameter a `reqParams` object, which contain all GET params sent to the previous `callbackUrl`. It will also get access in `storedParams` to data you sent to the callback in `redirectToService`.
+You're responsible for invoking the `cb` with any error, the account name from the user and all the final data you wish to store internally—in most case, this will include at least a refresh token, but this can be anything as long as it's a valid JavasScript object.
 
 #### `updateAccount`
-This function will be called periodically to update documents. Calls will occur:
-* when the user ping `/update` on AnyFetch API
-* right after connecting the provider for the first time
-* after a span of time, when AnyFetch server estimates new data can be gathered.
+This function will be invoked whenever the user asks to update his account with new data from your provider.
 
-This function must return a list of task, each task being a document to create or update on AnyFetch.
-This tasks will be fed to `queueWorker` (see below).
-The function must also return a cursor (for instance, the current date) to remember the state and start upload from this point next time.
+In order to do so, a `cursor` parameter is sent—you'll return it at the end of the function, updated, to match the new state (either an internal cursor sent from your provider, or the current date).
 
+```js
+// IN :
+//   * serviceData returned by retrieveTokens
+//   * last cursor returned by this function, or null on the first update
+//   * Queues to use
+// OUT :
+//   * err
+//   * new cursor
+//   * new serviceData to replace previous ones (if any)
+var updateAccount = function updateAccount(serviceData, cursor, queues, cb) {
+  serviceLib.retrieveDelta(cursor, function(err, createdFiles, deletedFiles) {
+    // Push new tasks onto the workers
+    createdFiles.forEach(function(task) {
+      queues.additions.push(task);
+    });
 
-Params:
-* `datas`: data stored by `connectAccountRetrieveAuthDatas`
-* `cursor`: last cursor, or null on first run.
-* `next`: call this with the error if any (grant has been revoked, ...), the list of tasks to feed to `queueWorker` and the new cursor (it will be written after all tasks are processed).
+    deletedFiles.forEach(function(task) {
+      queues.deletions.push(task);
+    });
 
-```javascript
-var updateAccount = function(datas, cursor, next) {
-  // Update the account !
-  var tasks = [
-    { 'url': 'http://...', 'token': '...'},
-    { 'url': 'http://...', 'token': '...'}
-  ];
-
-  next(null, tasks, new Date());
-};
-```
-
-##### Sending in multiple times
-Sometimes, to send big chunks of data, you may need to send a first batch of tasks. To do this, just call `next` with an error and an array (without a new cursor). You can do this as many time as you like, once you're done just call next with the new cursor as third parameter.
-
-```javascript
-// For big tasks (multiple gigabytes of data / asynchronous retrieval of tasks /...)
-var updateAccount = function(data, cursor, next) {
-  // Update the account !
-  var tasks1 = [...];
-  next(null, tasks1);
-
-  var tasks2 = [...];
-  next(null, tasks2);
-
-  var tasks3 = [...];
-  next(null, tasks3, new Date());
-  // Warning; once a call to next with a new cursor has been made, you can't queue anymore.
-};
-```
-##### Updating your data
-Some providers update their tokens with time, or have one-time-use refresh tokens.
-To handle such a case, you can use a fourth parameter which is a function to update your data.
-All tasks pushed after the call to this function will use the new data.
-
-```javascript
-var updateAccount = function(datas, cursor, next, updateDatas) {
-  datas.newKey = "newValue";
-  updateDatas(datas, function(err, newDatas) {
-    // Update the account !
-    var tasks1 = [...];
-    next(null, tasks1);
+    // Save new cursor
+    cb(null, new Date().toString());
   });
 };
 ```
 
-#### `queueWorker`
-This function will be called with each task returned by `updateAccount`.
-It must send the document to AnyFetch using the client available on `anyfetchClient`.
+It takes as parameter the data you sent to `retrieveTokens`, the `cursor` that was sent during the last invokation of `updateAccount` or `null` if this is the first run.
 
-Params:
-* `task` the task defined previously.
-* `anyfetchClient` pre-configured client for upload (with appId, appSecret and accessToken)
-* `datas` data for the account being updated
-* `cb` call this once document is uploaded and you're ready for another task
+You can then start pushing tasks onto the different queues—more on that on next section.
 
-```javascript
-var queueWorker = function(task, anyfetchClient, datas, cb) {
-  // Upload document
-  anyfetchClient.sendDocument(task, cb);
+#### `workers`
+Workers are functions responsible for handling the tasks returned by `updateAccount`. Keep in mind they are shared for all users of your lib, and should therefore not rely on any external state or context.
+
+`workers` must be an object where each key is a specific worker with specific options. For nearly all use-cases, you'll only need two workers: one for additions (sending new and updated documents from your provider to AnyFetch) and one for deletions (deleting documents onto AnyFetch).
+
+A worker is a simple function taking two parameters: a job, and a `cb` to invoke with an error if any.
+
+```js
+// IN :
+//   * job, with preconfigured keys:
+//     * task: data to process
+//     * anyfetchClient: pre-configured client, see https://github.com/AnyFetch/anyfetch.js
+//     * serviceData: as returned by retrieveTokens, or updated by updateAccount (third optional parameter for cb)
+// OUT :
+//   * err
+var workers = {
+  'additions': function(job, cb) {
+    job.anyfetchClient.postDocument(job.task, cb);
+  },
+  'deletions': function(job, cb) {
+    job.anyfetchClient.deleteDocumentById(job.task.id, cb);
+  }
 };
 ```
 
-### Simple use
-For most use case, you'll be able to simplify the initial `initAccount` / `connectAccountRetrievePreDatasIdentifier` / `connectAccountRetrieveAuthDatas`.
+The `job` parameter contains 3 keys:
 
-You'll simply have to:
-* Use `{code: req.params.code}` as `preDatas` (second argument of `initAccount` `next()` function)
-* Return a `redirectUrl` (third argument of `initAccount` `next()` function) including this code param for later retrieval. Most OAuth provider will let you use a `?state=` parameter to forward data between initialization and validation.
-* Return `{'datas.code': req.params.state}` (replace `state` with whatever way you have to remember the initial code) as the `preDatasIdentifier` (second argument of  `connectAccountRetrievePreDatasIdentifier` `next()` function). Remember : this object serves as a simple identifier to retrieve the data you stored before, but in this simple use case we didn't store additional data over the `code` parameter.
-* Return final credentials in `datas` (second argument of `connectAccountRetrieveAuthDatas` `next()`)
+* `task`: the task sent by your `updateAccount` function,
+* `anyfetchClient`: a pre-configured [anyfetch client](https://github.com/AnyFetch/anyfetch.js), with simple functions to send documents and files to the API.
+* `serviceData`: the data you've registered for this access token.
 
-### Optional parameters
+`cb` does not take any additional params after the error.
 
-* `concurrency` : number of tasks to run simultaneously on `queueWorker`, default is 1.
-* `redirectUrl` : url where the user should be redirected after `connectAccountRetrieveAuthDatas` (on /init/callback)
+##### Faster?
+For each worker, you can set the concurrency—the number of parallel tasks that will be running to unstack all tasks. Default is 1, but you can increase this value using the `concurrency` property:
 
-## Register additional endpoints
-Sometimes, you'll need to define additional endpoints -- for example to receive push notifications from your provider.
-To do so, you can simply plug new routes onto the `server` object. Behind the scenes, it is a simple customised `restify` server.
-
-For instance:
-```javascript
-var server = AnyFetchProvider.createServer(configHash);
-server.post('/delta', function(req, res, next) {
-  AnyFetchProvider.retrieveDatas({'datas.account_id': req.params.account_id}, function(err, datas) {
-    ...
-});
-})
+```js
+// Set concurrency. Defaults to 1 when unspecified.
+workers.additions.concurrency = 10;
 ```
 
-## Helper functions
-### `retrieveDatas(hash, function(err, datas))`
-Retrieve data associated with the `hash`. `hash` must be a unique identifier in all account.
-You'll need to prefix the key with `datas.` to search in your data.
+#### `config`
+The last parameters to `AnyFetchProvider.createServer()` is an object containing your application keys. You can find them on [the AnyFetch manager](https://manager.anyfetch.com).
 
-### `debug.cleanTokens(cb)`
-Crean all token and temp tokens, use as `before()` for Mocha tests.
+```js
+var config = {
+  // Anyfetch app id
+  appId: "your_app_id",
 
-### `debug.createToken(hash, cb)`
-Create a Token Mongoose model.
+  // Anyfetch app secret
+  appSecret: "your_app_secret",
 
-### `debug.createTempToken(hash, cb)`
-Create TempToken Mongoose model.
+  // Server currently running
+  providerUrl: "https://your.provider.address/"
+};
+```
+
+### Going further...
+#### Adding endpoints
+`AnyFetchProvider.createServer()` returns a [restify](http://mcavage.me/node-restify/) server. This is very similar to express, and you can simply add endpoints; for instance:
+
+```js
+var server = AnyFetchProvider.createServer(connectFunctions, updateAccount, workers, config);
+
+server.get('/hello', function(req, req, next) {
+  res.send("Hello " + req.params.name);
+  next();
+});
+
+server.listen();
+```
+
+
+#### Configuring Mongo and Redis
+By default, the lib will read values from `process.env.MONGO_URL` and `process.env.REDIS_URL` to connect to external services. You can override this behavior using `config.redisUrl` and `config.mongoUrl`.

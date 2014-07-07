@@ -29,21 +29,15 @@ var updateAccount = function updateAccount(serviceData, cursor, queues, cb) {
   cb(null, new Date());
 };
 
-var config = {};
-var resetConfig = function() {
-  // Reset config to pristine state
-  config = {
-    appId: 'appId',
-    appSecret: 'appSecret',
+var config = {
+  appId: 'appId',
+  appSecret: 'appSecret',
 
-    providerUrl : 'https://test.provider.anyfetch.com'
-  };
+  providerUrl : 'https://test.provider.anyfetch.com'
 };
 
 
 describe("AnyFetchProvider.createServer() config", function() {
-  beforeEach(resetConfig);
-
   it("should validate correct config", function(done) {
     var ret = AnyFetchProvider.validateConfig(config);
 
@@ -55,16 +49,13 @@ describe("AnyFetchProvider.createServer() config", function() {
   });
 
   it("should err on missing parameter", function(done) {
-    delete config.appId;
-    AnyFetchProvider.validateConfig(config).toString().should.include('appId');
+    AnyFetchProvider.validateConfig({}).toString().should.include('appId');
     done();
   });
 });
 
 
 describe("AnyFetchProvider.createServer()", function() {
-  beforeEach(resetConfig);
-
   describe('/ endpoint', function() {
     it("should redirect to anyfetch.com", function(done) {
       var server = AnyFetchProvider.createServer(connectFunctions, updateAccount, {}, config);
@@ -181,7 +172,6 @@ describe("AnyFetchProvider.createServer()", function() {
     var token;
 
     beforeEach(AnyFetchProvider.debug.cleanTokens);
-    beforeEach(resetConfig);
     beforeEach(function(done) {
       // Create a token, as-if /init/ workflow was properly done
       token = new Token({

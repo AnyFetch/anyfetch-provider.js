@@ -20,7 +20,7 @@ Use [Provider boilerplate](https://github.com/AnyFetch/provider-boilerplate) to 
 
 Here is a sample use:
 
-```javascript
+```js
 // See syntax below
 var server = AnyFetchProvider.createServer(connectFunctions, updateAccount, workers, config);
 
@@ -33,7 +33,7 @@ server.listen();
 #### `connectFunctions`
 The first parameter to `AnyFetchProvider.createServer()` is a set of functions handling the OAuth part on the provider side (the OAuth part on Anyfetch side is automatically handled for you by the lib).
 
-```
+```js
 var connectFunctions = {
   // IN :
   //   * callback url to ping after grant
@@ -156,7 +156,7 @@ workers.additions.concurrency = 10;
 #### `config`
 The last parameters to `AnyFetchProvider.createServer()` is an object containing your application keys. You can find them on [the AnyFetch manager](https://manager.anyfetch.com).
 
-```
+```js
 var config = {
   // Anyfetch app id
   appId: "your_app_id",
@@ -169,3 +169,21 @@ var config = {
 };
 ```
 
+### Going further...
+#### Adding endpoints
+`AnyFetchProvider.createServer()` returns a [restify](http://mcavage.me/node-restify/) server. This is very similar to express, and you can simply add endpoints; for instance:
+
+```js
+var server = AnyFetchProvider.createServer(connectFunctions, updateAccount, workers, config);
+
+server.get('/hello', function(req, req, next) {
+  res.send("Hello " + req.params.name);
+  next();
+});
+
+server.listen();
+```
+
+
+#### Configuring Mongo and Redis
+By default, the lib will read values from `process.env.MONGO_URL` and `process.env.REDIS_URL` to connect to external services. You can override this behavior using `config.redisUrl` and `config.MongoUrl`.

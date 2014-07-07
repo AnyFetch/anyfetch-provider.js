@@ -9,8 +9,6 @@ var AnyFetchProvider = require('../lib/');
 var TempToken = require('../lib/models/temp-token.js');
 var Token = require('../lib/models/token.js');
 
-//var accessGrant = "fakeAccessGrant";
-
 var connectFunctions = {
   redirectToService: function redirectToService(callbackUrl, cb) {
     var preData = {
@@ -113,7 +111,7 @@ describe("AnyFetchProvider.createServer()", function() {
     });
 
     it("should retrieve data on TempToken"/*, function(done) {
-      process.env.ANYFETCH_MANAGER_URL = 'http://localhost:1337';
+      Anyfetch.setManagerUrl('http://localhost:1337');
 
       Anyfetch.createMockServer().listen(1337, function() {
         console.log("Mock server listen on port 1337");

@@ -1,7 +1,7 @@
 {
   "name": "anyfetch-provider",
   "description": "Create providers for Anyfetch.",
-  "version": "0.3.17",
+  "version": "1.0.0",
   "author": "Matthieu Bacconnier <matthieu@papiel.fr>",
   "scripts": {
     "test": "NODE_ENV=test mocha -R spec test/",

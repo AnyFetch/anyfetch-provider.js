@@ -82,54 +82,6 @@ describe("AnyFetchProvider.createServer()", function() {
 
         });
     });
-
-    it("should retrieve data on TempToken", function(done) {
-      Anyfetch.setManagerUrl('http://localhost:1337');
-
-      Anyfetch.createMockServer().listen(1337, function() {
-        console.log("Mock server listen on port 1337");
-      });
-
-      var originalPreData = {
-        'key': 'retrieval',
-        'something': 'data'
-      };
-
-      async.series([
-        function(cb) {
-          // Fake a call to /init/connect returned this data
-          var tempToken = new TempToken({
-            anyfetchCode: 'anyfetch_token',
-            data: originalPreData
-          });
-
-          tempToken.save(cb);
-        },
-        function(cb) {
-          var server = AnyFetchProvider.createServer(connectFunctions, updateAccount, {}, config);
-
-          request(server).get('/init/callback?code=anyfetch_token')
-            .expect(302)
-            .end(function(err) {
-            if(err) {
-              throw err;
-            }
-
-            Token.findOne({'data.final': 'my-code'}, function(err, token) {
-              if(err) {
-                return cb(err);
-              }
-
-              if(!token) {
-                throw new Error("Token should be saved.");
-              }
-
-              cb();
-            });
-          });
-        }
-      ], done);
-    });
   });
 
   describe("/update endpoint", function() {

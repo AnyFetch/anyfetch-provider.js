@@ -3,6 +3,12 @@
   "description": "Create providers for Anyfetch.",
   "version": "1.0.6",
   "author": "Matthieu Bacconnier <matthieu@papiel.fr>",
+  "contributors": [
+    {
+      "name": "Quentin Buathier",
+      "email": "quentin.buathier@epitech.eu"
+    }
+  ],
   "scripts": {
     "test": "NODE_ENV=test mocha -R spec test/",
     "lint": "jshint lib/ test/"

@@ -112,7 +112,8 @@ describe("AnyFetchProvider.createServer()", function() {
         anyfetchToken: 'thetoken',
         data: {
           foo: 'bar'
-        }
+        },
+        accountName: 'accountName'
       });
 
       token.save(done);

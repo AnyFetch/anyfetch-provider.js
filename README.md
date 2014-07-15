@@ -133,6 +133,7 @@ A worker is a simple function taking two parameters: a job, and a `cb` to invoke
 //     * task: data to process
 //     * anyfetchClient: pre-configured client, see https://github.com/AnyFetch/anyfetch.js
 //     * serviceData: as returned by retrieveTokens, or updated by updateAccount (third optional parameter for cb)
+//     * cache: a LRU cache, see https://github.com/isaacs/node-lru-cache
 // OUT :
 //   * err
 var workers = {
@@ -145,11 +146,12 @@ var workers = {
 };
 ```
 
-The `job` parameter contains 3 keys:
+The `job` parameter contains 4 keys:
 
 * `task`: the task sent by your `updateAccount` function,
 * `anyfetchClient`: a pre-configured [anyfetch client](https://github.com/AnyFetch/anyfetch.js), with simple functions to send documents and files to the API.
 * `serviceData`: the data you've registered for this access token.
+* `cache`: a pre-configured [LRU cache](https://github.com/isaacs/node-lru-cache)
 
 `cb` does not take any additional params after the error.
 

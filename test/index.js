@@ -2,8 +2,6 @@
 
 require('should');
 var request = require('supertest');
-var async = require('async');
-var Anyfetch = require('anyfetch');
 
 var AnyFetchProvider = require('../lib/');
 var TempToken = require('../lib/models/temp-token.js');
@@ -36,6 +34,8 @@ var config = {
   providerUrl : 'https://your.provider.address'
 };
 
+// The server adds a listener for SIGTERM, with a lots of tests we can have more listeners than the default limit of 10 listeners
+process.setMaxListeners(100);
 
 describe("AnyFetchProvider.createServer()", function() {
   describe('/ endpoint', function() {

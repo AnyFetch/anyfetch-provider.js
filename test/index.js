@@ -2,8 +2,6 @@
 
 require('should');
 var request = require('supertest');
-var async = require('async');
-var Anyfetch = require('anyfetch');
 
 var AnyFetchProvider = require('../lib/');
 var TempToken = require('../lib/models/temp-token.js');
@@ -35,7 +33,6 @@ var config = {
 
   providerUrl : 'https://your.provider.address'
 };
-
 
 describe("AnyFetchProvider.createServer()", function() {
   describe('/ endpoint', function() {
@@ -105,6 +102,9 @@ describe("AnyFetchProvider.createServer()", function() {
 
     var token;
 
+    beforeEach(function() {
+      process.removeAllListeners('SIGTERM');
+    });
     beforeEach(AnyFetchProvider.debug.cleanTokens);
     beforeEach(function(done) {
       // Create a token, as-if /init/ workflow was properly done

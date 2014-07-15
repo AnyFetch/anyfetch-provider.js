@@ -29,7 +29,8 @@
     "mongoose": "3.8.x",
     "kue": "0.8.x",
     "rarity": "2.1.x",
-    "client-sessions": "0.6.0"
+    "client-sessions": "0.6.0",
+    "lru-cache": "^2.5.0"
   },
   "devDependencies": {
     "mocha": "1.x.x",

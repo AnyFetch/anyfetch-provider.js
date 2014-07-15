@@ -34,6 +34,8 @@ var config = {
   providerUrl : 'https://your.provider.address'
 };
 
+process.setMaxListeners(100);
+
 describe("AnyFetchProvider.createServer()", function() {
   describe('/ endpoint', function() {
     it("should redirect to anyfetch.com", function(done) {
@@ -102,9 +104,6 @@ describe("AnyFetchProvider.createServer()", function() {
 
     var token;
 
-    beforeEach(function() {
-      process.removeAllListeners('SIGTERM');
-    });
     beforeEach(AnyFetchProvider.debug.cleanTokens);
     beforeEach(function(done) {
       // Create a token, as-if /init/ workflow was properly done

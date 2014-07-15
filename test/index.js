@@ -34,6 +34,7 @@ var config = {
   providerUrl : 'https://your.provider.address'
 };
 
+// The server adds a listener for SIGTERM, with a lots of tests we can have more listeners than the old limit
 process.setMaxListeners(100);
 
 describe("AnyFetchProvider.createServer()", function() {

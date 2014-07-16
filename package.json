@@ -10,8 +10,7 @@
     }
   ],
   "scripts": {
-    "test": "NODE_ENV=test mocha -R spec test/",
-    "lint": "jshint lib/ test/"
+    "test": "NODE_ENV=test mocha -R spec test/"
   },
   "main": "./lib/",
   "repository": {
@@ -23,20 +22,19 @@
     "provider"
   ],
   "dependencies": {
-    "async": "0.9.x",
-    "restify": "2.8.x",
+    "async": "^0.9.0",
+    "restify": "^2.8.1",
     "anyfetch": "^1.0.6",
-    "mongoose": "3.8.x",
-    "kue": "0.8.x",
-    "rarity": "2.1.x",
-    "client-sessions": "0.6.0",
+    "mongoose": "^3.8.0",
+    "kue": "^0.8.1",
+    "rarity": "^2.1.1",
+    "client-sessions": "^0.6.0",
     "lru-cache": "^2.5.0"
   },
   "devDependencies": {
-    "mocha": "1.x.x",
-    "should": "3.3.x",
-    "supertest": "0.11.x",
-    "jshint": "2.5.x"
+    "mocha": "^1.20",
+    "should": "^4.0.4",
+    "supertest": "^0.13.0"
   },
   "licence": "MIT",
   "engines": {

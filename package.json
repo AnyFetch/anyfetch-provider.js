@@ -29,12 +29,12 @@
     "kue": "^0.8.3",
     "rarity": "^2.1.1",
     "client-sessions": "^0.6.0",
-    "lru-cache": "^2.5.0"
+    "lru-cache": "^2.5.0",
+    "supertest": "^0.13.0"
   },
   "devDependencies": {
     "mocha": "^1.20",
-    "should": "^4.0.4",
-    "supertest": "^0.13.0"
+    "should": "^4.0.4"
   },
   "licence": "MIT",
   "engines": {

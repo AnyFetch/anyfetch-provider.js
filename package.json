@@ -24,7 +24,7 @@
   "dependencies": {
     "async": "^0.9.0",
     "restify": "^2.8.1",
-    "anyfetch": "^1.0.7",
+    "anyfetch": "^1.0.9",
     "mongoose": "^3.8.13",
     "kue": "^0.8.3",
     "rarity": "^2.1.1",

@@ -37,7 +37,7 @@ var config = {
 process.setMaxListeners(100);
 
 
-describe("/init endpoints", function() {
+describe("/init/connect endpoint", function() {
   beforeEach(AnyFetchProvider.debug.cleanTokens);
 
   it("should require anyfetch code", function(done) {

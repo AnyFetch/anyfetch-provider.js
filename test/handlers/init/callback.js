@@ -38,7 +38,7 @@ var config = {
 process.setMaxListeners(100);
 
 
-describe("/init endpoints", function() {
+describe("/init/callback endpoint", function() {
   before(function createMockServer(done) {
     var server = AnyFetch.createMockServer();
 

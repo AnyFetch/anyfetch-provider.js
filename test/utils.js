@@ -12,7 +12,7 @@ describe('Utils functions', function() {
       done();
     });
 
-    it('should return undefined is there is no file name', function(done) {
+    it('should return undefined if there is no file name', function(done) {
       if(generateTitle() === undefined) {
         return done();
       }

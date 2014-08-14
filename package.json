@@ -10,7 +10,7 @@
     }
   ],
   "scripts": {
-    "test": "NODE_ENV=test mocha -R spec test/"
+    "test": "NODE_ENV=test mocha --recursive -R spec test/"
   },
   "main": "./lib/",
   "repository": {

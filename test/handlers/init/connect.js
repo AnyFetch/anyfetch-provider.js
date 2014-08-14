@@ -3,16 +3,16 @@
 require('should');
 var request = require('supertest');
 
-var AnyFetchProvider = require('../../lib/');
-var TempToken = require('../../lib/models/temp-token.js');
-var helpers = require('./helpers');
+var AnyFetchProvider = require('../../../lib/');
+var TempToken = require('../../../lib/models/temp-token.js');
+var helpers = require('../helpers');
 
 var connectFunctions = helpers.connectFunctions;
 var updateAccount = helpers.updateAccount;
 var config = helpers.config;
 
 
-describe("/init endpoints", function() {
+describe("/init/connect endpoint", function() {
   beforeEach(AnyFetchProvider.debug.cleanTokens);
 
   it("should require anyfetch code", function(done) {

@@ -3,8 +3,8 @@
 require('should');
 var request = require('supertest');
 
-var AnyFetchProvider = require('../../lib/');
-var TempToken = require('../../lib/models/temp-token.js');
+var AnyFetchProvider = require('../../../lib/');
+var TempToken = require('../../../lib/models/temp-token.js');
 
 var connectFunctions = {
   redirectToService: function redirectToService(callbackUrl, cb) {
@@ -37,7 +37,7 @@ var config = {
 process.setMaxListeners(100);
 
 
-describe("/init endpoints", function() {
+describe("/init/connect endpoint", function() {
   beforeEach(AnyFetchProvider.debug.cleanTokens);
 
   it("should require anyfetch code", function(done) {

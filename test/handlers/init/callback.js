@@ -89,9 +89,11 @@ describe("/init endpoints", function() {
       send: function(statusCode, tmp, headers) {
         statusCode.should.eql(302);
         headers.should.have.property('location', tempToken.returnTo + "?state=success");
+
+        done();
       }
     };
 
-    callbackFunction(req, res, done);
+    callbackFunction(req, res, function() {});
   });
 });

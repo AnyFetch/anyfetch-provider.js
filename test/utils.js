@@ -4,7 +4,7 @@ require('should');
 
 var generateTitle = require('../lib/util.js').generateTitle;
 
-describe.only('Utils functions', function() {
+describe('Utils functions', function() {
   describe('generateTitle()', function() {
     it('should return valid title', function(done) {
       var document = 'this-is-a-file.doc';

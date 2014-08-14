@@ -3,7 +3,6 @@ require('should');
 
 var AnyFetchProvider = require('../lib/');
 
-
 describe("Helper functions", function () {
   describe("retrieveData()", function() {
     beforeEach(AnyFetchProvider.debug.cleanTokens);
@@ -50,4 +49,3 @@ describe("Helper functions", function () {
     });
   });
 });
-

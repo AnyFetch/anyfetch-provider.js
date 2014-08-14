@@ -5,36 +5,11 @@ var request = require('supertest');
 
 var AnyFetchProvider = require('../../lib/');
 var Token = require('../../lib/models/token.js');
+var helpers = require('./helpers');
 
-var connectFunctions = {
-  redirectToService: function redirectToService(callbackUrl, cb) {
-    var preData = {
-      "foo": "bar"
-    };
-
-    cb(null, 'http://localhost', preData);
-  },
-
-  retrieveTokens: function retrieveTokens(reqParams, storedParams, cb) {
-    cb(null, 'accountName', {
-      'final': 'my-code'
-    });
-  }
-};
-
-var updateAccount = function updateAccount(serviceData, cursor, queues, cb) {
-  cb(null, new Date());
-};
-
-var config = {
-  appId: 'appId',
-  appSecret: 'appSecret',
-
-  providerUrl : 'https://your.provider.address'
-};
-
-// The server adds a listener for SIGTERM, with a lots of tests we can have more listeners than the default limit of 10 listeners
-process.setMaxListeners(100);
+var connectFunctions = helpers.connectFunctions;
+var updateAccount = helpers.updateAccount;
+var config = helpers.config;
 
 
 describe("/status endpoint", function() {

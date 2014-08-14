@@ -3,8 +3,8 @@
 require('should');
 var request = require('supertest');
 
-var AnyFetchProvider = require('../../lib/');
-var TempToken = require('../../lib/models/temp-token.js');
+var AnyFetchProvider = require('../../../lib/');
+var TempToken = require('../../../lib/models/temp-token.js');
 
 var connectFunctions = {
   redirectToService: function redirectToService(callbackUrl, cb) {

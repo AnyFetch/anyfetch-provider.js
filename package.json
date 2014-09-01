@@ -1,7 +1,7 @@
 {
   "name": "anyfetch-provider",
   "description": "Create providers for Anyfetch.",
-  "version": "1.0.42",
+  "version": "1.0.43",
   "author": "Matthieu Bacconnier <matthieu@papiel.fr>",
   "contributors": [
     {

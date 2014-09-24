@@ -26,7 +26,7 @@
     "restify": "^2.8.1",
     "anyfetch": "^2.0.4",
     "mongoose": "^3.8.13",
-    "kue": "^0.8.3",
+    "kue": "^0.8.5",
     "rarity": "^2.1.1",
     "client-sessions": "^0.6.0",
     "lru-cache": "^2.5.0"

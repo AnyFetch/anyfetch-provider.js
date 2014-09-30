@@ -29,6 +29,7 @@
     "kue": "^0.8.5",
     "rarity": "^2.1.1",
     "client-sessions": "^0.6.0",
+    "opbeat": "~0.3.1",
     "lru-cache": "^2.5.0"
   },
   "devDependencies": {

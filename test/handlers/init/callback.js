@@ -52,7 +52,7 @@ describe("GET /init/callback endpoint", function() {
   });
 
   it("should redirect user to returnTo URL with success state", function(done) {
-    var callbackFunction = require('../../../lib/handlers/init/callback.js')(connectFunctions.retrieveTokens, config);
+    var callbackFunction = require('../../../lib/handlers/init/callback.js').getGenerator(connectFunctions.retrieveTokens, config);
 
     var req = {
       ANYFETCH_SESSION: {

@@ -12,7 +12,7 @@ var updateAccount = helpers.updateAccount;
 var config = helpers.config;
 
 
-describe("/update endpoint", function() {
+describe("POST /update endpoint", function() {
   var updateServer = function(server, identifier, done) {
     if(!done) {
       done = function(err) {

@@ -12,7 +12,7 @@ var updateAccount = helpers.updateAccount;
 var config = helpers.config;
 
 
-describe("/status endpoint", function() {
+describe("GET /status endpoint", function() {
   var token;
   before(AnyFetchProvider.debug.cleanTokens);
   before(function(done) {

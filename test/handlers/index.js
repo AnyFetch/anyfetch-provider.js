@@ -11,7 +11,7 @@ var updateAccount = helpers.updateAccount;
 var config = helpers.config;
 
 
-describe('/ endpoint', function() {
+describe('GET / endpoint', function() {
   it("should redirect to anyfetch.com", function(done) {
     var server = AnyFetchProvider.createServer(connectFunctions, updateAccount, {}, config);
 

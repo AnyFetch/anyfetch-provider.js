@@ -13,7 +13,7 @@ var updateAccount = helpers.updateAccount;
 var config = helpers.config;
 
 
-describe("/init/callback endpoint", function() {
+describe("GET /init/callback endpoint", function() {
   before(function createMockServer(done) {
     var server = AnyFetch.createMockServer();
 

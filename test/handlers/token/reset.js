@@ -21,7 +21,8 @@ describe("DELETE /token/reset endpoint", function() {
       data: {
         foo: 'bar'
       },
-      cursor: 'current-cursor'
+      cursor: 'current-cursor',
+      accountName: 'test@anyfetch.com'
     });
 
     token.save(done);
@@ -45,7 +46,7 @@ describe("DELETE /token/reset endpoint", function() {
       .send({
         access_token: 'dummy_access_token'
       })
-      .expect(409)
+      .expect(404)
       .end(done);
   });
 

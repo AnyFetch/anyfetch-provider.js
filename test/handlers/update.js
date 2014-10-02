@@ -42,7 +42,7 @@ describe("POST /update endpoint", function() {
       data: {
         foo: 'bar'
       },
-      accountName: 'accountName'
+      accountName: 'test@anyfetch.com'
     });
 
     token.save(done);
@@ -70,7 +70,7 @@ describe("POST /update endpoint", function() {
     request(server)
       .post('/update')
       .send({
-        access_token: '123',
+        access_token: 'thetoken',
         documents_per_update: 100
       })
       .expect(409)
@@ -84,7 +84,7 @@ describe("POST /update endpoint", function() {
     request(server)
       .post('/update')
       .send({
-        access_token: '123',
+        access_token: 'thetoken',
         api_url: 'http://api.anyfetch.com',
       })
       .expect(409)
@@ -102,7 +102,7 @@ describe("POST /update endpoint", function() {
         api_url: 'http://api.anyfetch.com',
         documents_per_update: 100
       })
-      .expect(409)
+      .expect(404)
       .end(done);
   });
 
@@ -138,7 +138,6 @@ describe("POST /update endpoint", function() {
 
   it("should retrieve tasks and upload just one task", function(done) {
     var tasks = [{a:1, identifier: 'a'}, {a:2, identifier: 'b'}, {a:3, identifier: 'c'}];
-    var counter = 1;
 
     // We need to use test2 queue instead of test because this event worker can't override the last worker in the last test
     var updateAccount = function(serviceData, cursor, queues, cb) {

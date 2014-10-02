@@ -21,7 +21,7 @@ describe('DELETE /token endpoint', function() {
       data: {
         foo: 'bar'
       },
-      accountName: 'accountName'
+      accountName: 'test@anyfetch.com'
     });
 
     token.save(done);

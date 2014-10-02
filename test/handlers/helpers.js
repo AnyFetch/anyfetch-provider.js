@@ -10,7 +10,7 @@ module.exports.connectFunctions = {
   },
 
   retrieveTokens: function retrieveTokens(reqParams, storedParams, cb) {
-    cb(null, 'accountName', {
+    cb(null, 'test@anyfetch.com', {
       'final': 'my-code'
     });
   }

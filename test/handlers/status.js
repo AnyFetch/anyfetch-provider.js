@@ -22,7 +22,8 @@ describe("GET /status endpoint", function() {
       data: {
         foo: 'bar'
       },
-      cursor: 'current-cursor'
+      cursor: 'current-cursor',
+      accountName: 'test@anyfetch.com'
     });
 
     token.save(done);
@@ -46,7 +47,7 @@ describe("GET /status endpoint", function() {
       .query({
         access_token: 'dummy_access_token'
       })
-      .expect(409)
+      .expect(404)
       .end(done);
   });
 
@@ -61,7 +62,7 @@ describe("GET /status endpoint", function() {
       })
       .expect(200)
       .expect(function(res) {
-        res.body.should.have.keys(['anyfetch_token', 'data', 'cursor', 'is_updating', 'last_update']);
+        res.body.should.have.keys(['anyfetch_token', 'data', 'cursor', 'is_updating', 'last_update', 'accountName']);
       })
       .end(done);
   });

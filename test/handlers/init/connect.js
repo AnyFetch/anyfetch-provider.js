@@ -12,7 +12,7 @@ var updateAccount = helpers.updateAccount;
 var config = helpers.config;
 
 
-describe("/init/connect endpoint", function() {
+describe("GET /init/connect endpoint", function() {
   beforeEach(AnyFetchProvider.debug.cleanTokens);
 
   it("should require anyfetch code", function(done) {

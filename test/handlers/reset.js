@@ -12,7 +12,7 @@ var updateAccount = helpers.updateAccount;
 var config = helpers.config;
 
 
-describe("/reset endpoint", function() {
+describe("DELETE /reset endpoint", function() {
   before(AnyFetchProvider.debug.cleanTokens);
   before(function(done) {
     // Create a token, as-if /init/ workflow was properly done

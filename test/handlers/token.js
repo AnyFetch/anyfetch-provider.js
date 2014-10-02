@@ -12,27 +12,7 @@ var updateAccount = helpers.updateAccount;
 var config = helpers.config;
 
 
-describe('/token endpoint', function() {
-  it("should require access_token parameter", function(done) {
-    var server = AnyFetchProvider.createServer(connectFunctions, updateAccount, {}, config);
-
-    request(server)
-      .del('/token')
-      .expect(409)
-      .expect(/access_token/i)
-      .end(done);
-  });
-
-  it("should send 404 on unknow token", function(done) {
-    var server = AnyFetchProvider.createServer(connectFunctions, updateAccount, {}, config);
-
-    request(server)
-      .del('/token?access_token=test')
-      .expect(404)
-      .expect(/unknown/i)
-      .end(done);
-  });
-
+describe('DELETE /token endpoint', function() {
   var token;
   before(AnyFetchProvider.debug.cleanTokens);
   before(function(done) {
@@ -45,6 +25,26 @@ describe('/token endpoint', function() {
     });
 
     token.save(done);
+  });
+
+  it("should require access_token parameter", function(done) {
+    var server = AnyFetchProvider.createServer(connectFunctions, updateAccount, {}, config);
+
+    request(server)
+      .del('/token')
+      .expect(409)
+      .expect(/access_token/i)
+      .end(done);
+  });
+
+  it("should send 404 on unknown token", function(done) {
+    var server = AnyFetchProvider.createServer(connectFunctions, updateAccount, {}, config);
+
+    request(server)
+      .del('/token?access_token=test')
+      .expect(404)
+      .expect(/unknown/i)
+      .end(done);
   });
 
   it("should remove token", function(done) {
@@ -60,11 +60,11 @@ describe('/token endpoint', function() {
 
         Token.findOne({anyfetchToken: token.anyfetchToken}, function(err, token) {
           if(err) {
-            done(err);
+            return done(err);
           }
 
           if(token) {
-            done(new Error("Token must be remove"));
+            return done(new Error("Token must be remove"));
           }
 
           done();

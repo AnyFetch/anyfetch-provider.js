@@ -3,9 +3,9 @@
 require('should');
 var request = require('supertest');
 
-var AnyFetchProvider = require('../../lib/');
-var Token = require('../../lib/models/token.js');
-var helpers = require('./helpers');
+var AnyFetchProvider = require('../../../lib/');
+var Token = require('../../../lib/models/token.js');
+var helpers = require('../helpers');
 
 var connectFunctions = helpers.connectFunctions;
 var updateAccount = helpers.updateAccount;

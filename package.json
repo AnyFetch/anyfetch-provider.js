@@ -1,7 +1,7 @@
 {
   "name": "anyfetch-provider",
   "description": "Create providers for Anyfetch.",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "author": "Matthieu Bacconnier <matthieu@papiel.fr>",
   "contributors": [
     {
@@ -32,7 +32,7 @@
     "opbeat": "~0.3.1",
     "rarity": "^2.1.1",
     "restify": "^2.8.1",
-    "restify-logger": "^1.0.0"
+    "restify-logger": "^2.0.1"
   },
   "devDependencies": {
     "mocha": "^1.20",

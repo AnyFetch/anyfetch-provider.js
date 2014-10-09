@@ -2,6 +2,8 @@
 
 require('should');
 var request = require('supertest');
+var async = require('async');
+var rarity = require('rarity');
 
 var AnyFetchProvider = require('../../../lib/');
 var Token = require('../../../lib/models/token.js');
@@ -11,6 +13,53 @@ var connectFunctions = helpers.connectFunctions;
 var updateAccount = helpers.updateAccount;
 var config = helpers.config;
 
+describe('POST /token endpoint', function() {
+  var token = {
+    access_token: 'fake_token',
+    data: {
+      foo: 'bar'
+    },
+    cursor: new Date(),
+    account_name: 'fake.test@anyfetch.com'
+  };
+
+  before(AnyFetchProvider.debug.cleanTokens);
+
+  it("should require access_token parameter", function(done) {
+    var server = AnyFetchProvider.createServer(connectFunctions, updateAccount, {}, config);
+
+    request(server)
+      .post('/token')
+      .expect(409)
+      .expect(/access_token/i)
+      .end(done);
+  });
+
+  it("should save the new token", function(done) {
+    var server = AnyFetchProvider.createServer(connectFunctions, updateAccount, {}, config);
+
+    async.waterfall([
+      function sendToken(cb) {
+        request(server)
+          .post('/token')
+          .send(token)
+          .expect(204)
+          .end(rarity.slice(1, cb));
+      },
+      function findToken(cb) {
+        Token.findOne({anyfetchToken: token.access_token}, cb);
+      },
+      function checkToken(newToken, cb) {
+        newToken.should.have.property('anyfetchToken', token.access_token);
+        newToken.should.have.property('data', token.data);
+        newToken.should.have.property('cursor', token.cursor.toISOString());
+        newToken.should.have.property('accountName', token.account_name);
+
+        cb(null);
+      }
+    ], done);
+  });
+});
 
 describe('DELETE /token endpoint', function() {
   var token;

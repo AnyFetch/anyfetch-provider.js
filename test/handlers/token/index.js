@@ -20,9 +20,7 @@ describe('POST /token endpoint', function() {
       foo: 'bar'
     },
     cursor: new Date(),
-    account_name: 'fake.test@anyfetch.com',
-    last_update: new Date(2020, 2, 2),
-    is_updating: true
+    account_name: 'fake.test@anyfetch.com'
   };
 
   before(AnyFetchProvider.debug.cleanTokens);
@@ -56,15 +54,11 @@ describe('POST /token endpoint', function() {
         newToken.should.have.property('data', token.data);
         newToken.should.have.property('cursor', token.cursor.toISOString());
         newToken.should.have.property('accountName', token.account_name);
-        newToken.should.have.property('lastUpdate', token.last_update);
-        newToken.should.have.property('isUpdating', token.is_updating);
 
         cb(null);
       }
-    ], done)
+    ], done);
   });
-
-  //Token.findOne({anyfetchToken: token.anyfetchToken}
 });
 
 describe('DELETE /token endpoint', function() {

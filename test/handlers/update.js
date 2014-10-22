@@ -63,21 +63,6 @@ describe("POST /update endpoint", function() {
       .end(done);
   });
 
-
-  it("should require api_url to update", function(done) {
-    var server = AnyFetchProvider.createServer(connectFunctions, updateAccount, {}, config);
-
-    request(server)
-      .post('/update')
-      .send({
-        access_token: 'thetoken',
-        documents_per_update: 100
-      })
-      .expect(409)
-      .expect(/api_url/)
-      .end(done);
-  });
-
   it("should require documents_per_update to update", function(done) {
     var server = AnyFetchProvider.createServer(connectFunctions, updateAccount, {}, config);
 

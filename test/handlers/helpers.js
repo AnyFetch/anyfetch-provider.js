@@ -24,7 +24,7 @@ module.exports.config = {
   appId: 'appId',
   appSecret: 'appSecret',
 
-  providerUrl : 'https://your.provider.address'
+  providerUrl: 'https://your.provider.address'
 };
 
 // The server adds a listener for SIGTERM, with a lots of tests we can have more listeners than the default limit of 10 listeners

@@ -93,7 +93,7 @@ describe("POST /update endpoint", function() {
 
   it("should retrieve tasks and upload them", function(done) {
 
-    var tasks = [{a:1, identifier: 'a'}, {a:2, identifier: 'b'}, {a:3, identifier: 'c'}];
+    var tasks = [{a: 1, identifier: 'a'}, {a: 2, identifier: 'b'}, {a: 3, identifier: 'c'}];
     var counter = 1;
 
     var updateAccount = function(serviceData, cursor, queues, cb) {
@@ -122,7 +122,7 @@ describe("POST /update endpoint", function() {
   });
 
   it("should retrieve tasks and upload just one task", function(done) {
-    var tasks = [{a:1, identifier: 'a'}, {a:2, identifier: 'b'}, {a:3, identifier: 'c'}];
+    var tasks = [{a: 1, identifier: 'a'}, {a: 2, identifier: 'b'}, {a: 3, identifier: 'c'}];
 
     // We need to use test2 queue instead of test because this event worker can't override the last worker in the last test
     var updateAccount = function(serviceData, cursor, queues, cb) {
@@ -139,6 +139,7 @@ describe("POST /update endpoint", function() {
       job.task.should.have.property('a', 2);
       job.serviceData.should.have.property('foo', 'bar');
 
+      cb();
       done();
     };
 

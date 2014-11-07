@@ -30,7 +30,7 @@
     "kue": "^0.8.5",
     "lru-cache": "^2.5.0",
     "mongoose": "^3.8.13",
-    "opbeat": "^1.0.0",
+    "opbeat": "^1.0.2",
     "rarity": "^2.1.1",
     "restify": "^2.8.1",
     "restify-logger": "^2.0.1"

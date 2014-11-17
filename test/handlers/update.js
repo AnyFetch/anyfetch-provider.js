@@ -94,7 +94,7 @@ describe("POST /update endpoint", function() {
   it("should retrieve tasks and upload them", function(done) {
 
     var tasks = [{a: 1, identifier: 'a'}, {a: 2, identifier: 'b'}, {a: 3, identifier: 'c'}];
-    var counter = 1;
+    var counter = 0;
 
     var updateAccount = function(serviceData, cursor, queues, cb) {
       // Update the account !
@@ -111,24 +111,26 @@ describe("POST /update endpoint", function() {
       job.serviceData.should.have.property('foo', 'bar');
 
       counter += 1;
-      if(counter === tasks.length) {
-        done();
-      }
       cb();
     };
 
     var server = AnyFetchProvider.createServer(connectFunctions, updateAccount, {test: queueWorker}, config);
     updateServer(server);
+
+    server.usersQueue.once('empty', function() {
+      counter.should.be.eql(tasks.length);
+      done();
+    });
   });
 
   it("should retrieve tasks and upload just one task", function(done) {
     var tasks = [{a: 1, identifier: 'a'}, {a: 2, identifier: 'b'}, {a: 3, identifier: 'c'}];
+    var counter = 0;
 
-    // We need to use test2 queue instead of test because this event worker can't override the last worker in the last test
     var updateAccount = function(serviceData, cursor, queues, cb) {
       // Update the account !
       tasks.forEach(function(task) {
-        queues.test2.push(task);
+        queues.test.push(task);
       });
 
       cb(null, new Date());
@@ -139,29 +141,41 @@ describe("POST /update endpoint", function() {
       job.task.should.have.property('a', 2);
       job.serviceData.should.have.property('foo', 'bar');
 
+      counter += 1;
       cb();
-      done();
     };
 
-    var server = AnyFetchProvider.createServer(connectFunctions, updateAccount, {test2: queueWorker}, config);
+    var server = AnyFetchProvider.createServer(connectFunctions, updateAccount, {test: queueWorker}, config);
     updateServer(server, 'b');
+
+    server.usersQueue.once('empty', function() {
+      counter.should.be.eql(1);
+      done();
+    });
   });
 
   it("should allow to update token data", function(done) {
-    // We need to use test3 queue instead of test because this event worker can't override the last worker in the last test
+    var counter = 0;
+
     var updateAccount = function(serviceData, cursor, queues, cb) {
       serviceData.newKey = 'newValue';
-      queues.test3.push({});
+      queues.test.push({});
       cb(null, new Date(), serviceData);
     };
 
     var queueWorker = function(job, cb) {
       job.serviceData.should.have.property('newKey', 'newValue');
-      done();
+
+      counter += 1;
       cb();
     };
 
-    var server = AnyFetchProvider.createServer(connectFunctions, updateAccount, {test3: queueWorker}, config);
+    var server = AnyFetchProvider.createServer(connectFunctions, updateAccount, {test: queueWorker}, config);
     updateServer(server);
+
+    server.usersQueue.once('empty', function() {
+      counter.should.be.eql(1);
+      done();
+    });
   });
 });

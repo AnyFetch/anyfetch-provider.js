@@ -118,7 +118,7 @@ describe("POST /update endpoint", function() {
     updateServer(server);
 
     server.usersQueue.once('empty', function() {
-      counter.should.be.eql(tasks.length);
+      counter.should.eql(tasks.length);
       done();
     });
   });
@@ -149,7 +149,7 @@ describe("POST /update endpoint", function() {
     updateServer(server, 'b');
 
     server.usersQueue.once('empty', function() {
-      counter.should.be.eql(1);
+      counter.should.eql(1);
       done();
     });
   });
@@ -174,7 +174,7 @@ describe("POST /update endpoint", function() {
     updateServer(server);
 
     server.usersQueue.once('empty', function() {
-      counter.should.be.eql(1);
+      counter.should.eql(1);
       done();
     });
   });

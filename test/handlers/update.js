@@ -8,9 +8,10 @@ var Token = require('../../lib/models/token.js');
 var helpers = require('./helpers');
 
 var connectFunctions = helpers.connectFunctions;
-var updateAccount = helpers.updateAccount;
+var workers = helpers.workers;
+var workersFile = helpers.workersFile;
+var updateFile = helpers.updateFile;
 var config = helpers.config;
-
 
 describe("POST /update endpoint", function() {
   var updateServer = function(server, identifier, done) {
@@ -50,7 +51,7 @@ describe("POST /update endpoint", function() {
 
 
   it("should require access_token to update", function(done) {
-    var server = AnyFetchProvider.createServer(connectFunctions, updateAccount, {}, config);
+    var server = AnyFetchProvider.createServer(connectFunctions, workers, workersFile, updateFile, config);
 
     request(server)
       .post('/update')
@@ -64,7 +65,7 @@ describe("POST /update endpoint", function() {
   });
 
   it("should require documents_per_update to update", function(done) {
-    var server = AnyFetchProvider.createServer(connectFunctions, updateAccount, {}, config);
+    var server = AnyFetchProvider.createServer(connectFunctions, workers, workersFile, updateFile, config);
 
     request(server)
       .post('/update')
@@ -78,7 +79,7 @@ describe("POST /update endpoint", function() {
   });
 
   it("should require valid access_token to update", function(done) {
-    var server = AnyFetchProvider.createServer(connectFunctions, updateAccount, {}, config);
+    var server = AnyFetchProvider.createServer(connectFunctions, workers, workersFile, updateFile, config);
 
     request(server)
       .post('/update')
@@ -92,90 +93,91 @@ describe("POST /update endpoint", function() {
   });
 
   it("should retrieve tasks and upload them", function(done) {
+    this.timeout(10000);
 
-    var tasks = [{a: 1, identifier: 'a'}, {a: 2, identifier: 'b'}, {a: 3, identifier: 'c'}];
     var counter = 0;
+    var server = AnyFetchProvider.createServer(connectFunctions, ['test'], __dirname + '/../helpers/workers-test-1.js', __dirname + '/../helpers/update-test.js', config);
 
-    var updateAccount = function(serviceData, cursor, queues, cb) {
-      // Update the account !
-      tasks.forEach(function(task) {
-        queues.test.push(task);
-      });
-
-      cb(null, new Date());
-    };
-
-    var queueWorker = function(job, cb) {
-      // Upload document
-      job.task.should.have.property('a').within(1, 3);
-      job.serviceData.should.have.property('foo', 'bar');
-
+    server.usersQueue.on('job.task.completed', function() {
       counter += 1;
-      cb();
-    };
+    });
 
-    var server = AnyFetchProvider.createServer(connectFunctions, updateAccount, {test: queueWorker}, config);
-    updateServer(server);
+    server.usersQueue.on('job.task.failed', function(job, err) {
+      done(err);
+    });
 
-    server.usersQueue.once('empty', function() {
-      counter.should.eql(tasks.length);
-      done();
+    server.usersQueue.on('job.update.failed', function(job, err) {
+      done(err);
+    });
+
+    updateServer(server, null, function(err) {
+      if(err) {
+        return done(err);
+      }
+
+      server.usersQueue.once('empty', function() {
+        server.usersQueue.removeAllListeners();
+        counter.should.eql(3);
+        done();
+      });
     });
   });
 
   it("should retrieve tasks and upload just one task", function(done) {
-    var tasks = [{a: 1, identifier: 'a'}, {a: 2, identifier: 'b'}, {a: 3, identifier: 'c'}];
     var counter = 0;
+    var server = AnyFetchProvider.createServer(connectFunctions, ['test'], __dirname + '/../helpers/workers-test-2.js', __dirname + '/../helpers/update-test.js', config);
 
-    var updateAccount = function(serviceData, cursor, queues, cb) {
-      // Update the account !
-      tasks.forEach(function(task) {
-        queues.test.push(task);
-      });
-
-      cb(null, new Date());
-    };
-
-    var queueWorker = function(job, cb) {
-      // Upload document
-      job.task.should.have.property('a', 2);
-      job.serviceData.should.have.property('foo', 'bar');
-
+    server.usersQueue.on('job.task.completed', function() {
       counter += 1;
-      cb();
-    };
+    });
 
-    var server = AnyFetchProvider.createServer(connectFunctions, updateAccount, {test: queueWorker}, config);
-    updateServer(server, 'b');
+    server.usersQueue.on('job.task.failed', function(job, err) {
+      done(err);
+    });
 
-    server.usersQueue.once('empty', function() {
-      counter.should.eql(1);
-      done();
+    server.usersQueue.on('job.update.failed', function(job, err) {
+      done(err);
+    });
+
+    updateServer(server, 'b', function(err) {
+      if(err) {
+        return done(err);
+      }
+
+      server.usersQueue.once('empty', function() {
+        server.usersQueue.removeAllListeners();
+        counter.should.eql(1);
+        done();
+      });
     });
   });
 
   it("should allow to update token data", function(done) {
     var counter = 0;
+    var server = AnyFetchProvider.createServer(connectFunctions, ['test'], __dirname + '/../helpers/workers-test-3.js', __dirname + '/../helpers/update-test.js', config);
 
-    var updateAccount = function(serviceData, cursor, queues, cb) {
-      serviceData.newKey = 'newValue';
-      queues.test.push({});
-      cb(null, new Date(), serviceData);
-    };
-
-    var queueWorker = function(job, cb) {
-      job.serviceData.should.have.property('newKey', 'newValue');
-
+    server.usersQueue.on('job.task.completed', function() {
       counter += 1;
-      cb();
-    };
+    });
 
-    var server = AnyFetchProvider.createServer(connectFunctions, updateAccount, {test: queueWorker}, config);
-    updateServer(server);
+    server.usersQueue.on('job.task.failed', function(job, err) {
+      done(err);
+    });
 
-    server.usersQueue.once('empty', function() {
-      counter.should.eql(1);
-      done();
+    server.usersQueue.on('job.update.failed', function(job, err) {
+      done(err);
+    });
+
+    updateServer(server, null, function(err) {
+      if(err) {
+        return done(err);
+      }
+
+      server.usersQueue.once('empty', function() {
+        server.usersQueue.removeAllListeners();
+        counter.should.eql(3);
+        done();
+      });
     });
   });
 });

@@ -9,9 +9,10 @@ var TempToken = require('../../../lib/models/temp-token.js');
 var helpers = require('../helpers');
 
 var connectFunctions = helpers.connectFunctions;
-var updateAccount = helpers.updateAccount;
+var workers = helpers.workers;
+var workersFile = helpers.workersFile;
+var updateFile = helpers.updateFile;
 var config = helpers.config;
-
 
 describe("GET /init/callback endpoint", function() {
   before(function createMockServer(done) {
@@ -44,7 +45,7 @@ describe("GET /init/callback endpoint", function() {
   });
 
   it("should require code session", function(done) {
-    var server = AnyFetchProvider.createServer(connectFunctions, updateAccount, {}, config);
+    var server = AnyFetchProvider.createServer(connectFunctions, workers, workersFile, updateFile, config);
 
     request(server).get('/init/connect')
       .expect(409)

@@ -8,9 +8,10 @@ var Token = require('../../../lib/models/token.js');
 var helpers = require('../helpers');
 
 var connectFunctions = helpers.connectFunctions;
-var updateAccount = helpers.updateAccount;
+var workers = helpers.workers;
+var workersFile = helpers.workersFile;
+var updateFile = helpers.updateFile;
 var config = helpers.config;
-
 
 describe("DELETE /token/reset endpoint", function() {
   before(AnyFetchProvider.debug.cleanTokens);
@@ -30,7 +31,7 @@ describe("DELETE /token/reset endpoint", function() {
 
 
   it("should require access_token to reset", function(done) {
-    var server = AnyFetchProvider.createServer(connectFunctions, updateAccount, {}, config);
+    var server = AnyFetchProvider.createServer(connectFunctions, workers, workersFile, updateFile, config);
 
     request(server)
       .del('/token/reset')
@@ -39,7 +40,7 @@ describe("DELETE /token/reset endpoint", function() {
   });
 
   it("should require valid access_token to reset", function(done) {
-    var server = AnyFetchProvider.createServer(connectFunctions, updateAccount, {}, config);
+    var server = AnyFetchProvider.createServer(connectFunctions, workers, workersFile, updateFile, config);
 
     request(server)
       .del('/token/reset')
@@ -52,7 +53,7 @@ describe("DELETE /token/reset endpoint", function() {
 
 
   it("should reset account", function(done) {
-    var server = AnyFetchProvider.createServer(connectFunctions, updateAccount, {}, config);
+    var server = AnyFetchProvider.createServer(connectFunctions, workers, workersFile, updateFile, config);
 
     request(server)
       .del('/token/reset')

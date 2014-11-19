@@ -8,9 +8,10 @@ var Token = require('../../lib/models/token.js');
 var helpers = require('./helpers');
 
 var connectFunctions = helpers.connectFunctions;
-var updateAccount = helpers.updateAccount;
+var workers = helpers.workers;
+var workersFile = helpers.workersFile;
+var updateFile = helpers.updateFile;
 var config = helpers.config;
-
 
 describe("GET /status endpoint", function() {
   var token;
@@ -31,7 +32,7 @@ describe("GET /status endpoint", function() {
 
 
   it("should require an access_token", function(done) {
-    var server = AnyFetchProvider.createServer(connectFunctions, updateAccount, {}, config);
+    var server = AnyFetchProvider.createServer(connectFunctions, workers, workersFile, updateFile, config);
 
     request(server)
       .get('/status')
@@ -40,7 +41,7 @@ describe("GET /status endpoint", function() {
   });
 
   it("should require valid access_token", function(done) {
-    var server = AnyFetchProvider.createServer(connectFunctions, updateAccount, {}, config);
+    var server = AnyFetchProvider.createServer(connectFunctions, workers, workersFile, updateFile, config);
 
     request(server)
       .get('/status')
@@ -53,7 +54,7 @@ describe("GET /status endpoint", function() {
 
 
   it("should display informations", function(done) {
-    var server = AnyFetchProvider.createServer(connectFunctions, updateAccount, {}, config);
+    var server = AnyFetchProvider.createServer(connectFunctions, workers, workersFile, updateFile, config);
 
     request(server)
       .get('/status')

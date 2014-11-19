@@ -16,8 +16,6 @@ module.exports.connectFunctions = {
   }
 };
 
-module.exports.workers = [];
-
 module.exports.workersFile = __dirname + '/helpers-workers.js';
 module.exports.updateFile = __dirname + '/helpers-update.js';
 

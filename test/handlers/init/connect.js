@@ -8,7 +8,6 @@ var TempToken = require('../../../lib/models/temp-token.js');
 var helpers = require('../helpers');
 
 var connectFunctions = helpers.connectFunctions;
-var workers = helpers.workers;
 var workersFile = helpers.workersFile;
 var updateFile = helpers.updateFile;
 var config = helpers.config;
@@ -17,7 +16,7 @@ describe("GET /init/connect endpoint", function() {
   beforeEach(AnyFetchProvider.debug.cleanTokens);
 
   it("should require anyfetch code", function(done) {
-    var server = AnyFetchProvider.createServer(connectFunctions, workers, workersFile, updateFile, config);
+    var server = AnyFetchProvider.createServer(connectFunctions, workersFile, updateFile, config);
 
     request(server).get('/init/connect')
       .expect(409)
@@ -25,7 +24,7 @@ describe("GET /init/connect endpoint", function() {
   });
 
   it("should store data returned by redirectToService() in TempToken", function(done) {
-    var server = AnyFetchProvider.createServer(connectFunctions, workers, workersFile, updateFile, config);
+    var server = AnyFetchProvider.createServer(connectFunctions, workersFile, updateFile, config);
 
     request(server).get('/init/connect?code=anyfetch_code')
       .expect(302)

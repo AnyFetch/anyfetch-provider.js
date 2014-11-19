@@ -8,7 +8,6 @@ var Token = require('../../lib/models/token.js');
 var helpers = require('./helpers');
 
 var connectFunctions = helpers.connectFunctions;
-var workers = helpers.workers;
 var workersFile = helpers.workersFile;
 var updateFile = helpers.updateFile;
 var config = helpers.config;
@@ -51,7 +50,7 @@ describe("POST /update endpoint", function() {
 
 
   it("should require access_token to update", function(done) {
-    var server = AnyFetchProvider.createServer(connectFunctions, workers, workersFile, updateFile, config);
+    var server = AnyFetchProvider.createServer(connectFunctions, workersFile, updateFile, config);
 
     request(server)
       .post('/update')
@@ -65,7 +64,7 @@ describe("POST /update endpoint", function() {
   });
 
   it("should require documents_per_update to update", function(done) {
-    var server = AnyFetchProvider.createServer(connectFunctions, workers, workersFile, updateFile, config);
+    var server = AnyFetchProvider.createServer(connectFunctions, workersFile, updateFile, config);
 
     request(server)
       .post('/update')
@@ -79,7 +78,7 @@ describe("POST /update endpoint", function() {
   });
 
   it("should require valid access_token to update", function(done) {
-    var server = AnyFetchProvider.createServer(connectFunctions, workers, workersFile, updateFile, config);
+    var server = AnyFetchProvider.createServer(connectFunctions, workersFile, updateFile, config);
 
     request(server)
       .post('/update')
@@ -96,7 +95,7 @@ describe("POST /update endpoint", function() {
     this.timeout(10000);
 
     var counter = 0;
-    var server = AnyFetchProvider.createServer(connectFunctions, ['test'], __dirname + '/../helpers/workers-test-1.js', __dirname + '/../helpers/update-test.js', config);
+    var server = AnyFetchProvider.createServer(connectFunctions, __dirname + '/../helpers/workers-test-1.js', __dirname + '/../helpers/update-test.js', config);
 
     server.usersQueue.on('job.task.completed', function() {
       counter += 1;
@@ -125,7 +124,7 @@ describe("POST /update endpoint", function() {
 
   it("should retrieve tasks and upload just one task", function(done) {
     var counter = 0;
-    var server = AnyFetchProvider.createServer(connectFunctions, ['test'], __dirname + '/../helpers/workers-test-2.js', __dirname + '/../helpers/update-test.js', config);
+    var server = AnyFetchProvider.createServer(connectFunctions, __dirname + '/../helpers/workers-test-2.js', __dirname + '/../helpers/update-test.js', config);
 
     server.usersQueue.on('job.task.completed', function() {
       counter += 1;
@@ -154,7 +153,7 @@ describe("POST /update endpoint", function() {
 
   it("should allow to update token data", function(done) {
     var counter = 0;
-    var server = AnyFetchProvider.createServer(connectFunctions, ['test'], __dirname + '/../helpers/workers-test-3.js', __dirname + '/../helpers/update-test.js', config);
+    var server = AnyFetchProvider.createServer(connectFunctions, __dirname + '/../helpers/workers-test-3.js', __dirname + '/../helpers/update-test.js', config);
 
     server.usersQueue.on('job.task.completed', function() {
       counter += 1;

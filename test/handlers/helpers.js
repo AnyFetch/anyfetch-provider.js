@@ -16,9 +16,8 @@ module.exports.connectFunctions = {
   }
 };
 
-module.exports.updateAccount = function updateAccount(serviceData, cursor, queues, cb) {
-  cb(null, new Date());
-};
+module.exports.workersFile = __dirname + '/helpers-workers.js';
+module.exports.updateFile = __dirname + '/helpers-update.js';
 
 module.exports.config = {
   appId: 'appId',

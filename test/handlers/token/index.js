@@ -10,7 +10,8 @@ var Token = require('../../../lib/models/token.js');
 var helpers = require('../helpers');
 
 var connectFunctions = helpers.connectFunctions;
-var updateAccount = helpers.updateAccount;
+var workersFile = helpers.workersFile;
+var updateFile = helpers.updateFile;
 var config = helpers.config;
 
 describe('POST /token endpoint', function() {
@@ -26,7 +27,7 @@ describe('POST /token endpoint', function() {
   before(AnyFetchProvider.debug.cleanTokens);
 
   it("should require access_token parameter", function(done) {
-    var server = AnyFetchProvider.createServer(connectFunctions, updateAccount, {}, config);
+    var server = AnyFetchProvider.createServer(connectFunctions, workersFile, updateFile, config);
 
     request(server)
       .post('/token')
@@ -36,7 +37,7 @@ describe('POST /token endpoint', function() {
   });
 
   it("should save the new token", function(done) {
-    var server = AnyFetchProvider.createServer(connectFunctions, updateAccount, {}, config);
+    var server = AnyFetchProvider.createServer(connectFunctions, workersFile, updateFile, config);
 
     async.waterfall([
       function sendToken(cb) {
@@ -77,7 +78,7 @@ describe('DELETE /token endpoint', function() {
   });
 
   it("should require access_token parameter", function(done) {
-    var server = AnyFetchProvider.createServer(connectFunctions, updateAccount, {}, config);
+    var server = AnyFetchProvider.createServer(connectFunctions, workersFile, updateFile, config);
 
     request(server)
       .del('/token')
@@ -87,7 +88,7 @@ describe('DELETE /token endpoint', function() {
   });
 
   it("should send 404 on unknown token", function(done) {
-    var server = AnyFetchProvider.createServer(connectFunctions, updateAccount, {}, config);
+    var server = AnyFetchProvider.createServer(connectFunctions, workersFile, updateFile, config);
 
     request(server)
       .del('/token?access_token=test')
@@ -97,7 +98,7 @@ describe('DELETE /token endpoint', function() {
   });
 
   it("should remove token", function(done) {
-    var server = AnyFetchProvider.createServer(connectFunctions, updateAccount, {}, config);
+    var server = AnyFetchProvider.createServer(connectFunctions, workersFile, updateFile, config);
 
     request(server)
       .del('/token?access_token=thetoken')

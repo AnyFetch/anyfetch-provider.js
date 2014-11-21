@@ -10,7 +10,7 @@ NodeJS toolkit for creating [anyFetch](http://anyfetch.com) providers.
 ## Introduction
 If you want to add a new service to AnyFetch (as a document entry point), you should use this tiny toolkit.
 
-This toolkit lets you bridge a given service to the anyFetch api by mounting a server receiving calls from both sides (ie. the service and AnyFetch API).
+This let you bridge a given service to the anyFetch api by mounting a server receiving calls from both sides (the service and AnyFetch API).
 
 Use [Provider boilerplate](https://github.com/AnyFetch/provider-boilerplate) to generate a new project stub.
 
@@ -22,7 +22,7 @@ Here is a sample usage:
 
 ```js
 // See syntax below
-var server = AnyFetchProvider.createServer(connectFunctions, updateAccount, workers, config);
+var server = AnyFetchProvider.createServer(connectFunctions, __dirname + '/lib/workers.js', __dirname + '/lib/update.js', config);
 
 server.listen();
 ```
@@ -86,9 +86,9 @@ It takes as parameter a `reqParams` object, which contain all GET params sent to
 You're responsible for invoking the `cb` with any error, the account name from the user and all the final data you wish to store internally—in most case, this will include at least a refresh token, but this can be anything as long as it's a valid JavasScript object.
 
 #### `updateAccount`
-This function will be invoked whenever the user asks to update his account with new data from your provider.
+This function (which must be directly exported in the file sent to `AnyFetchProvider.createServer()`) will be invoked whenever the user asks to update his account with new data from your provider.
 
-In order to do so, a `cursor` parameter is sent—you'll return it at the end of the function, updated, to match the new state (either an internal cursor sent from your provider, or the current date).
+In order to do so, a `cursor` parameter is sent—you'll return it at the end of the function, updated, to match the new state (either an internal cursor sent from your provider, or the current date, whichever suits you).
 
 ```js
 // IN :
@@ -99,7 +99,7 @@ In order to do so, a `cursor` parameter is sent—you'll return it at the end of
 //   * err
 //   * new cursor
 //   * new serviceData to replace previous ones (if any)
-var updateAccount = function updateAccount(serviceData, cursor, queues, cb) {
+module.exports = function updateAccount(serviceData, cursor, queues, cb) {
   serviceLib.retrieveDelta(cursor, function(err, createdFiles, deletedFiles) {
     // Push new tasks onto the workers
     createdFiles.forEach(function(task) {
@@ -121,7 +121,7 @@ It takes as parameter the data you sent to `retrieveTokens`, the `cursor` that w
 You can then start pushing tasks onto the different queues—more on that on next section.
 
 #### `workers`
-Workers are functions responsible for handling the tasks returned by `updateAccount`. Keep in mind they are shared for all users of your lib, and should therefore not rely on any external state or context.
+Workers (exported in the file sent to `AnyFetchProvider.createServer()`) are functions responsible for handling the tasks returned by `updateAccount`. Keep in mind they are shared for all users of your lib, and should therefore not rely on any external state or context.
 
 `workers` must be an object where each key is a specific worker with specific options. For nearly all use-cases, you'll only need two workers: one for additions (sending new and updated documents from your provider to AnyFetch) and one for deletions (deleting documents onto AnyFetch).
 
@@ -144,6 +144,8 @@ var workers = {
     job.anyfetchClient.deleteDocumentById(job.task.id, cb);
   }
 };
+
+module.exports = workers;
 ```
 
 The `job` parameter contains 4 keys:
@@ -155,16 +157,10 @@ The `job` parameter contains 4 keys:
 
 `cb` does not take any additional params after the error.
 
-##### Faster?
-For each worker, you can set the concurrency—the number of parallel tasks that will be running to unstack all tasks. Default is 1, but you can increase this value using the `concurrency` property:
-
-```js
-// Set concurrency. Defaults to 1 when unspecified.
-workers.additions.concurrency = 10;
-```
+> Note: Those workers are internally called as OS subprocesses by the lib, to ensure the failure of one worker does not bring down the whole server; it also avoids memory leaks from your code, since the workers are "cleaned" between each user.
 
 #### `config`
-The last parameters to `AnyFetchProvider.createServer()` is an object containing your application keys. You can find them on [the AnyFetch manager](https://manager.anyfetch.com).
+The last parameter to `AnyFetchProvider.createServer()` is an object containing your application keys. You can find them on [the AnyFetch manager](https://manager.anyfetch.com).
 
 ```js
 var config = {
@@ -178,6 +174,18 @@ var config = {
   providerUrl: "https://your.provider.address/"
 };
 ```
+
+##### Faster?
+You can set the concurrency—the number of parallel tasks per user that will be running to unstack all tasks. Default is 1, but you can increase this value using the `config.concurrency` property:
+
+```js
+// Set concurrency. Defaults to 1 when unspecified.
+config.concurrency = 10;
+```
+
+You can also set the number of users processing in parallel by setting the `config.usersConcurrency` property.
+
+> Note: as stated before, workers are doing their job in subprocesses. High concurrency means many small process running in parallel. The total number of tasks running in parallel will be `concurrency × usersConcurrency`.
 
 ### Going further...
 #### Adding endpoints

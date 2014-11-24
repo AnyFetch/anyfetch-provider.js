@@ -23,6 +23,22 @@ describe("GET /init/connect endpoint", function() {
       .end(done);
   });
 
+  it("should manage error in redirectUri", function(done) {
+    var fakeConnectFunctions = {
+      redirectToService: function redirectToService(callbackUrl, cb) {
+        cb(null, 5);
+      }
+    };
+    fakeConnectFunctions.retrieveTokens = connectFunctions.retrieveTokens;
+
+    var server = AnyFetchProvider.createServer(fakeConnectFunctions, workersFile, updateFile, config);
+
+    request(server).get('/init/connect?code=anyfetch_code')
+      .expect(302)
+      .expect('Location', 'https://manager.anyfetch.com/?state=danger&message=Error%3A%20Redirect%20url%20must%20be%20a%20string%2C%20sent%3A5')
+      .end(done);
+  });
+
   it("should store data returned by redirectToService() in TempToken", function(done) {
     var server = AnyFetchProvider.createServer(connectFunctions, workersFile, updateFile, config);
 

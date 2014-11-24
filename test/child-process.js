@@ -17,13 +17,13 @@ process.on('message', function(data) {
     return process.exit(0);
   }
 
-  if(data.errored) {
+  if(data.error) {
     throw new Error("Test error");
   }
 
   process.send({
     type: 'state',
-    processing: false
+    processing: data.processing
   });
 });
 

@@ -24,9 +24,10 @@ describe("POST /update endpoint", function() {
 
     request(server).post('/update' + (identifier ? '/' + identifier : ''))
       .send({
-        access_token: 'thetoken',
+        access_token: server.token,
         api_url: 'http://api.anyfetch.com',
-        documents_per_update: 100
+        documents_per_update: 100,
+        force: server.force
       })
       .expect(202)
       .end(done);
@@ -35,7 +36,8 @@ describe("POST /update endpoint", function() {
   var token;
 
   beforeEach(AnyFetchProvider.debug.cleanTokens);
-  beforeEach(function(done) {
+
+  beforeEach(function createToken1(done) {
     // Create a token, as-if /init/ workflow was properly done
     token = new Token({
       anyfetchToken: 'thetoken',
@@ -48,6 +50,35 @@ describe("POST /update endpoint", function() {
     token.save(done);
   });
 
+  beforeEach(function createToken2(done) {
+    // Create a token, as-if /init/ workflow was properly done
+    token = new Token({
+      anyfetchToken: 'thetoken2',
+      data: {
+        foo: 'bar'
+      },
+      accountName: 'test@anyfetch.com',
+      isUpdating: true,
+      lastUpdate: new Date()
+    });
+
+    token.save(done);
+  });
+
+  beforeEach(function createToken3(done) {
+    // Create a token, as-if /init/ workflow was properly done
+    token = new Token({
+      anyfetchToken: 'thetoken3',
+      data: {
+        foo: 'bar'
+      },
+      accountName: 'test@anyfetch.com',
+      isUpdating: true,
+      lastUpdate: new Date(Date.now() - 5 * 3600 * 1000 - 1)
+    });
+
+    token.save(done);
+  });
 
   it("should require access_token to update", function(done) {
     var server = AnyFetchProvider.createServer(connectFunctions, workersFile, updateFile, config);
@@ -91,11 +122,61 @@ describe("POST /update endpoint", function() {
       .end(done);
   });
 
+  it("should require isUpdating to false to update", function(done) {
+    var server = AnyFetchProvider.createServer(connectFunctions, workersFile, updateFile, config);
+
+    request(server)
+      .post('/update')
+      .send({
+        access_token: 'thetoken2',
+        api_url: 'http://api.anyfetch.com',
+        documents_per_update: 100
+      })
+      .expect(429)
+      .end(done);
+  });
+
+  it("should update with isUpdating to true and force", function(done) {
+    var server = AnyFetchProvider.createServer(connectFunctions, __dirname + '/../helpers/workers-test.js', __dirname + '/../helpers/update-test.js', config);
+
+    server.token = 'thetoken2';
+    server.force = true;
+
+    updateServer(server, null, function(err) {
+      if(err) {
+        return done(err);
+      }
+
+      server.usersQueue.once('empty', function() {
+        done();
+      });
+    });
+  });
+
+  it("should update with isUpdating to true and a good lastUpdate", function(done) {
+    var server = AnyFetchProvider.createServer(connectFunctions, __dirname + '/../helpers/workers-test.js', __dirname + '/../helpers/update-test.js', config);
+
+    server.token = 'thetoken3';
+
+    updateServer(server, null, function(err) {
+      if(err) {
+        return done(err);
+      }
+
+      server.usersQueue.once('empty', function() {
+        done();
+      });
+    });
+  });
+
   it("should retrieve tasks and upload them", function(done) {
     this.timeout(10000);
 
     var counter = 0;
     var server = AnyFetchProvider.createServer(connectFunctions, __dirname + '/../helpers/workers-test-1.js', __dirname + '/../helpers/update-test.js', config);
+
+    server.token = 'thetoken';
+    server.force = false;
 
     server.usersQueue.on('job.task.completed', function() {
       counter += 1;
@@ -126,6 +207,9 @@ describe("POST /update endpoint", function() {
     var counter = 0;
     var server = AnyFetchProvider.createServer(connectFunctions, __dirname + '/../helpers/workers-test-2.js', __dirname + '/../helpers/update-test.js', config);
 
+    server.token = 'thetoken';
+    server.force = false;
+
     server.usersQueue.on('job.task.completed', function() {
       counter += 1;
     });
@@ -154,6 +238,9 @@ describe("POST /update endpoint", function() {
   it("should allow to update token data", function(done) {
     var counter = 0;
     var server = AnyFetchProvider.createServer(connectFunctions, __dirname + '/../helpers/workers-test-3.js', __dirname + '/../helpers/update-test.js', config);
+
+    server.token = 'thetoken';
+    server.force = false;
 
     server.usersQueue.on('job.task.completed', function() {
       counter += 1;

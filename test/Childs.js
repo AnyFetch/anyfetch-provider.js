@@ -6,7 +6,8 @@ describe('Childs', function() {
   it('should restart childs', function(done) {
     var childs = new Childs(1, __dirname + '/child-process.js', {error: true});
 
-    childs.once('stop', function() {
+    childs.once('stop', function(forced) {
+      forced.should.be.false;
       done();
     });
 
@@ -17,7 +18,8 @@ describe('Childs', function() {
   it('should kill all childs', function(done) {
     var childs = new Childs(1, __dirname + '/child-process.js', {error: false, processing: true});
 
-    childs.once('kill', function() {
+    childs.once('stop', function(forced) {
+      forced.should.be.true;
       done();
     });
 

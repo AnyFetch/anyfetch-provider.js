@@ -7,7 +7,7 @@ describe('Childs', function() {
     var childs = new Childs(1, __dirname + '/child-process.js', {error: true});
 
     childs.once('stop', function(forced) {
-      forced.should.be.false;
+      forced.should.eql(false);
       done();
     });
 
@@ -19,7 +19,7 @@ describe('Childs', function() {
     var childs = new Childs(1, __dirname + '/child-process.js', {error: false, processing: true});
 
     childs.once('stop', function(forced) {
-      forced.should.be.true;
+      forced.should.eql(true);
       done();
     });
 

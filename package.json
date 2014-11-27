@@ -34,7 +34,7 @@
     "rarity": "^2.1.1",
     "restify": "^2.8.1",
     "restify-bunyan-logger": "^2.0.2",
-    "yaqs": "^1.0.5"
+    "yaqs": "^1.0.6"
   },
   "devDependencies": {
     "mocha": "^1.20",

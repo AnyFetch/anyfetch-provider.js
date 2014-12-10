@@ -86,7 +86,7 @@ describe("POST /update endpoint", function() {
     request(server)
       .post('/update')
       .send({
-        api_url: process.env.ANYFETCH_MANAGER_URL,
+        api_url: 'http://api.anyfetch.com',
         documents_per_update: 100
       })
       .expect(409)

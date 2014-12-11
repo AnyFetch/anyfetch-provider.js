@@ -23,6 +23,7 @@ module.exports.config = {
   appId: 'appId',
   appSecret: 'appSecret',
 
+  appName: 'test',
   providerUrl: 'https://your.provider.address'
 };
 

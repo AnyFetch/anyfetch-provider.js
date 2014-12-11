@@ -2,9 +2,10 @@
 
 require('should');
 var request = require('supertest');
+var redis = require('redis');
+var async = require('async');
 
 var AnyFetchProvider = require('../../lib/');
-var Token = require('../../lib/models/token.js');
 var helpers = require('./helpers');
 
 var connectFunctions = helpers.connectFunctions;
@@ -13,57 +14,87 @@ var updateFile = helpers.updateFile;
 var config = helpers.config;
 
 describe("GET /status endpoint", function() {
-  var token;
-  before(AnyFetchProvider.debug.cleanTokens);
-  before(function(done) {
-    // Create a token, as-if /init/ workflow was properly done
-    token = new Token({
-      anyfetchToken: 'thetoken',
-      data: {
-        foo: 'bar'
+  var server;
+
+  before(function flushRedis(cb) {
+    var client = redis.createClient();
+    client.flushdb(cb);
+  });
+
+  before(function createRedisEnv(done) {
+    server = AnyFetchProvider.createServer(connectFunctions, workersFile, updateFile, config);
+
+    var queues = [
+      {
+        name: 'anyfetch-provider-users',
+        pending: 1,
+        processing: 2
       },
-      cursor: 'current-cursor',
-      accountName: 'test@anyfetch.com'
-    });
+      {
+        name: 'test1@anyfetch.com',
+        pending: 30,
+        processing: 10
+      },
+      {
+        name: 'test2@anyfetch.com',
+        pending: 45,
+        processing: 5
+      },
+      {
+        name: 'test3@anyfetch.com',
+        pending: 1,
+        processing: 0
+      }
+    ];
 
-    token.save(done);
+    async.each(queues, function(data, cb) {
+      var queue;
+      async.waterfall([
+        function createQueue(cb) {
+          queue = server.yaqsClient.createQueue(data.name, {});
+          queue.stop(function() {
+            cb();
+          });
+        },
+        function addJobs(cb) {
+          var conn = queue.conn.multi();
+
+          conn = conn.hsetnx(queue.getPrefix(), 'total', 0);
+
+          for(var i = 0; i < data.pending; i += 1) {
+            conn = conn.zadd(queue.getPrefix('pending'), 0, 'pending-' + i);
+          }
+
+          for(var j = 0; j < data.processing; j += 1) {
+            conn = conn.zadd(queue.getPrefix('processing'), 0, 'processing-' + j);
+          }
+
+          conn.exec(cb);
+        }
+      ], cb);
+    }, done);
   });
-
-
-  it("should require an access_token", function(done) {
-    var server = AnyFetchProvider.createServer(connectFunctions, workersFile, updateFile, config);
-
-    request(server)
-      .get('/status')
-      .expect(409)
-      .end(done);
-  });
-
-  it("should require valid access_token", function(done) {
-    var server = AnyFetchProvider.createServer(connectFunctions, workersFile, updateFile, config);
-
-    request(server)
-      .get('/status')
-      .query({
-        access_token: 'dummy_access_token'
-      })
-      .expect(404)
-      .end(done);
-  });
-
 
   it("should display informations", function(done) {
-    var server = AnyFetchProvider.createServer(connectFunctions, workersFile, updateFile, config);
-
     request(server)
       .get('/status')
-      .query({
-        access_token: token.anyfetchToken
-      })
       .expect(200)
       .expect(function(res) {
-        res.body.should.have.keys(['anyfetch_token', 'data', 'cursor', 'is_updating', 'last_update', 'accountName']);
+        res.body.should.containDeep({
+          pending_documents: 76,
+          pending_queues: [
+            {pending: 45, processing: 5},
+            {pending: 1, processing: 0},
+            {pending: 30, processing: 10}
+          ],
+          users: {pending: 1, processing: 2}
+        });
       })
       .end(done);
+  });
+
+  after(function flushRedis(cb) {
+    var client = redis.createClient();
+    client.flushdb(cb);
   });
 });

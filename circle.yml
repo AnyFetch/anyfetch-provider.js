@@ -1,0 +1,13 @@
+machine:
+  node:
+    version: 0.10.26
+test:
+  pre:
+    - npm run-script lint
+  override:
+    - npm run-script coverage
+deployment:
+  automerge:
+    branch: /.+/
+    commands:
+      - cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js

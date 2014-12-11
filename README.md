@@ -1,7 +1,7 @@
 AnyFetch provider
 ======================
 
-[![Build Status](https://travis-ci.org/AnyFetch/anyfetch-provider.js.png?branch=master)](https://travis-ci.org/AnyFetch/anyfetch-provider.js)[![Dependency Status](https://gemnasium.com/AnyFetch/anyfetch-provider.js.png)](https://gemnasium.com/AnyFetch/anyfetch-provider.js)
+[![Circle CI](https://circleci.com/gh/AnyFetch/anyfetch-provider.js.svg?style=svg)](https://circleci.com/gh/AnyFetch/anyfetch-provider.js)[![Dependency Status](https://gemnasium.com/AnyFetch/anyfetch-provider.js.png)](https://gemnasium.com/AnyFetch/anyfetch-provider.js)
 [![Coverage Status](https://coveralls.io/repos/AnyFetch/anyfetch-provider.js/badge.png?branch=master)](https://coveralls.io/r/AnyFetch/anyfetch-provider.js?branch=master)
 [![NPM version](https://badge.fury.io/js/anyfetch-provider.png)](http://badge.fury.io/js/anyfetch-provider)
 

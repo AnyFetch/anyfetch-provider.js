@@ -5,8 +5,34 @@
   "author": "Matthieu Bacconnier <matthieu@papiel.fr>",
   "contributors": [
     {
+      "name": "Merlin Nimier-David",
+      "email": "",
+      "url": "https://github.com/merlinND"
+    },
+    {
+      "name": "Hugo Duroux",
+      "email": "",
+      "url": "https://github.com/Amoki"
+    },
+    {
+      "name": "Matthieu Bacconnier",
+      "email": "neamar@neamar.fr",
+      "url": "https://github.com/Neamar"
+    },
+    {
+      "name": "Robin Ricard",
+      "email": "",
+      "url": "https://github.com/rricard"
+    },
+    {
+      "name": "Antoine Bolvy",
+      "email": "antoine.bolvy@gmail.com",
+      "url": "https://github.com/saveman71"
+    },
+    {
       "name": "Quentin Buathier",
-      "email": "quentin.buathier@epitech.eu"
+      "email": "quentin.buathier@epitech.eu",
+      "url": "https://github.com/Quentin01"
     }
   ],
   "scripts": {

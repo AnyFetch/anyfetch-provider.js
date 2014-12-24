@@ -198,7 +198,15 @@ describe("POST /update endpoint", function() {
       server.usersQueue.once('empty', function() {
         server.usersQueue.removeAllListeners();
         counter.should.eql(3);
-        done();
+
+        Token.findOne({anyfetchToken: 'thetoken'}, function(err, token) {
+          if(err) {
+            return done(err);
+          }
+
+          token.isUpdating.should.be.eql(false);
+          done();
+        });
       });
     });
   });

@@ -204,7 +204,7 @@ describe("POST /update endpoint", function() {
             return done(err);
           }
 
-          token.isUpdating.should.be.eql(false);
+          token.isUpdating.should.eql(false);
           done();
         });
       });

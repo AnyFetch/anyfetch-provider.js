@@ -85,7 +85,7 @@ The second function, `retrieveTokens`, will be invoked when the user has given h
 It takes as parameter a `reqParams` object, which contain all GET params sent to the previous `callbackUrl`. It will also get access in `storedParams` to data you sent to the callback in `redirectToService`.
 You're responsible for invoking the `cb` with any error, the account name from the user and all the final data you wish to store internally—in most case, this will include at least a refresh token, but this can be anything as long as it's a valid JavasScript object.
 
-> Warning: Final data can't contain a documentsPerUpdate property. It will be overwrite by the documents_per_update HTTP parameter.
+> Warning: Final data can't contain a documentsPerUpdate property. it would be overwritten by the documents_per_update HTTP parameter.
 
 #### `updateAccount`
 This function (which must be directly exported in the file sent to `AnyFetchProvider.createServer()`) will be invoked whenever the user asks to update his account with new data from your provider.

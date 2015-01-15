@@ -57,7 +57,7 @@
     "client-sessions": "^0.7.0",
     "lru-cache": "^2.5.0",
     "mongoose": "^3.8.20",
-    "opbeat": "^1.0.6",
+    "opbeat": "^1.1.1",
     "rarity": "^2.1.1",
     "restify": "^2.8.3",
     "restify-bunyan-logger": "^2.0.6",

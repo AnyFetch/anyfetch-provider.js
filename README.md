@@ -128,7 +128,7 @@ You can then start pushing tasks onto the different queues—more on that on nex
 
 To emulate the update call, you can curl on localhost:8000 this way:
 
-http://localhost:8000/update?access_token=ANYFETCH_ACCESS_TOKEN&documents_per_update=NUMBER_OF_DOCUMENTS&force=1
+`http://localhost:8000/update?access_token=ANYFETCH_ACCESS_TOKEN&documents_per_update=NUMBER_OF_DOCUMENTS&force=1`
 
 #### `workers`
 Workers (exported in the file sent to `AnyFetchProvider.createServer()`) are functions responsible for handling the tasks returned by `updateAccount`. Keep in mind they are shared for all users of your lib, and should therefore not rely on any external state or context.

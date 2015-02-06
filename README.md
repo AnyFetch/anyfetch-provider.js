@@ -14,6 +14,10 @@ This let you bridge a given service to the anyFetch api by mounting a server rec
 
 Use [Provider boilerplate](https://github.com/AnyFetch/provider-boilerplate) to generate a new project stub.
 
+You will need a redis and a mongodb server running.
+
+For a simple and practical example you can take a look at the [linkedin provider](https://github.com/AnyFetch/linkedin-provider.anyfetch.com).
+
 ## Installation and documentation
 
 `npm install anyfetch-provider`
@@ -122,6 +126,10 @@ It takes as parameter the data you sent to `retrieveTokens`, the `cursor` that w
 
 You can then start pushing tasks onto the different queues—more on that on next section.
 
+To emulate the update call, you can curl on localhost:8000 this way:
+
+`http://localhost:8000/update?access_token=ANYFETCH_ACCESS_TOKEN&documents_per_update=NUMBER_OF_DOCUMENTS&force=1`
+
 #### `workers`
 Workers (exported in the file sent to `AnyFetchProvider.createServer()`) are functions responsible for handling the tasks returned by `updateAccount`. Keep in mind they are shared for all users of your lib, and should therefore not rely on any external state or context.
 
@@ -178,7 +186,7 @@ var config = {
 ```
 
 ##### Faster?
-You can set the concurrency—the number of parallel tasks per user that will be running to unstack all tasks. Default is 1, but you can increase this value using the `config.concurrency` property:
+You can set the concurrency—the number of parallel tasks per user—that will be running to unstack all tasks. Default is 1, but you can increase this value using the `config.concurrency` property:
 
 ```js
 // Set concurrency. Defaults to 1 when unspecified.

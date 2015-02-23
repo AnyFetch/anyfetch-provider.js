@@ -61,6 +61,7 @@
     "rarity": "^2.1.1",
     "restify": "^2.8.5",
     "restify-bunyan-logger": "^2.0.6",
+    "supertest": "^0.15.0",
     "yaqs": "^1.0.9"
   },
   "devDependencies": {
@@ -71,8 +72,7 @@
     "mocha": "^2.1",
     "mocha-lcov-reporter": "0.0.1",
     "redis": "^0.12.1",
-    "should": "^5.0.0",
-    "supertest": "^0.15.0"
+    "should": "^5.0.0"
   },
   "licence": "MIT",
   "engines": {

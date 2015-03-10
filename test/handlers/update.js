@@ -2,6 +2,7 @@
 
 require('should');
 var request = require('supertest');
+var async = require('async');
 
 var AnyFetchProvider = require('../../lib/');
 var Token = require('../../lib/models/token.js');
@@ -303,5 +304,46 @@ describe("POST /update endpoint", function() {
         done();
       });
     });
+  });
+
+  it("should set requireRefresh to true when we send a TokenError", function(done) {
+    var server = AnyFetchProvider.createServer(connectFunctions, __dirname + '/../helpers/workers-token-error.js', __dirname + '/../helpers/update-test.js', config);
+
+    server.token = 'thetoken';
+    server.force = false;
+
+    async.waterfall([
+      function update(cb) {
+        server.usersQueue.on('job.task.failed', function(job, err) {
+          cb(err);
+        });
+
+        server.usersQueue.on('job.update.failed', function(job, err) {
+          cb(err);
+        });
+
+        updateServer(server, null, function(err) {
+          if(err) {
+            return cb(err);
+          }
+
+          server.usersQueue.once('empty', function() {
+            server.usersQueue.removeAllListeners();
+            cb();
+          });
+        });
+      },
+      function retrieveToken(cb) {
+        Token.findOne({anyfetchToken: 'thetoken'}, cb);
+      },
+      function checkToken(token, cb) {
+        if(!token) {
+          return cb(new Error("Can't retrieve token"));
+        }
+
+        token.requireRefresh.should.be.true;
+        cb();
+      }
+    ], done);
   });
 });

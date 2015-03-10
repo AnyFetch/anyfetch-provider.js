@@ -349,7 +349,6 @@ describe("POST /update endpoint", function() {
           }
 
           server.usersQueue.once('empty', function() {
-            console.log("EMPTY");
             server.usersQueue.removeAllListeners();
             cb();
           });

@@ -1,6 +1,7 @@
 'use strict';
 
 require('should');
+var AnyFetch = require('anyfetch');
 var request = require('supertest');
 var async = require('async');
 
@@ -26,13 +27,33 @@ describe("POST /update endpoint", function() {
     request(server).post('/update' + (identifier ? '/' + identifier : ''))
       .send({
         access_token: server.token,
-        api_url: 'http://api.anyfetch.com',
+        api_url: 'http://localhost:1337',
         documents_per_update: 100,
         force: server.force
       })
       .expect(202)
       .end(done);
   };
+
+  var mockServer;
+  before(function(done) {
+    mockServer = AnyFetch.createMockServer();
+
+    var port = 1337;
+    var apiUrl = 'http://localhost:' + port;
+
+    mockServer.listen(port, function() {
+      console.log('AnyFetch mock server running on ' + apiUrl);
+      AnyFetch.setApiUrl(apiUrl);
+      AnyFetch.setManagerUrl(apiUrl);
+
+      done();
+    });
+  });
+
+  after(function(done) {
+    mockServer.close(done);
+  });
 
   var token;
 
@@ -328,6 +349,7 @@ describe("POST /update endpoint", function() {
           }
 
           server.usersQueue.once('empty', function() {
+            console.log("EMPTY");
             server.usersQueue.removeAllListeners();
             cb();
           });

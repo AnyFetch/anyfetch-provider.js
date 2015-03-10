@@ -14,19 +14,24 @@ var updateFile = helpers.updateFile;
 var config = helpers.config;
 
 describe("GET /init/callback endpoint", function() {
+  var mockServer;
   before(function createMockServer(done) {
-    var server = AnyFetch.createMockServer();
+    mockServer = AnyFetch.createMockServer();
 
     var port = 1337;
     var apiUrl = 'http://localhost:' + port;
 
-    server.listen(port, function() {
+    mockServer.listen(port, function() {
       console.log('AnyFetch mock server running on ' + apiUrl);
       AnyFetch.setApiUrl(apiUrl);
       AnyFetch.setManagerUrl(apiUrl);
 
       done();
     });
+  });
+
+  after(function(done) {
+    mockServer.close(done);
   });
 
   beforeEach(AnyFetchProvider.debug.cleanTokens);

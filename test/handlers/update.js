@@ -80,6 +80,22 @@ describe("POST /update endpoint", function() {
     token.save(done);
   });
 
+  beforeEach(function createToken4(done) {
+    // Create a token, as-if /init/ workflow was properly done
+    token = new Token({
+      anyfetchToken: 'thetoken4',
+      data: {
+        foo: 'bar'
+      },
+      accountName: 'test@anyfetch.com',
+      isUpdating: true,
+      lastUpdate: new Date(Date.now() - 5 * 3600 * 1000 - 1),
+      requireRefresh: true
+    });
+
+    token.save(done);
+  });
+
   it("should require access_token to update", function(done) {
     var server = AnyFetchProvider.createServer(connectFunctions, workersFile, updateFile, config);
 
@@ -133,6 +149,20 @@ describe("POST /update endpoint", function() {
         documents_per_update: 100
       })
       .expect(429)
+      .end(done);
+  });
+
+  it("should fail with a token which need a refresh", function(done) {
+    var server = AnyFetchProvider.createServer(connectFunctions, workersFile, updateFile, config);
+
+    request(server)
+      .post('/update')
+      .send({
+        access_token: 'thetoken4',
+        api_url: 'http://api.anyfetch.com',
+        documents_per_update: 100
+      })
+      .expect(428)
       .end(done);
   });
 

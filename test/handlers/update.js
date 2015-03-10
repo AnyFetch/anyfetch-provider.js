@@ -1,7 +1,9 @@
 'use strict';
 
 require('should');
+var AnyFetch = require('anyfetch');
 var request = require('supertest');
+var async = require('async');
 
 var AnyFetchProvider = require('../../lib/');
 var Token = require('../../lib/models/token.js');
@@ -25,13 +27,33 @@ describe("POST /update endpoint", function() {
     request(server).post('/update' + (identifier ? '/' + identifier : ''))
       .send({
         access_token: server.token,
-        api_url: 'http://api.anyfetch.com',
+        api_url: 'http://localhost:1337',
         documents_per_update: 100,
         force: server.force
       })
       .expect(202)
       .end(done);
   };
+
+  var mockServer;
+  before(function(done) {
+    mockServer = AnyFetch.createMockServer();
+
+    var port = 1337;
+    var apiUrl = 'http://localhost:' + port;
+
+    mockServer.listen(port, function() {
+      console.log('AnyFetch mock server running on ' + apiUrl);
+      AnyFetch.setApiUrl(apiUrl);
+      AnyFetch.setManagerUrl(apiUrl);
+
+      done();
+    });
+  });
+
+  after(function(done) {
+    mockServer.close(done);
+  });
 
   var token;
 
@@ -75,6 +97,22 @@ describe("POST /update endpoint", function() {
       accountName: 'test@anyfetch.com',
       isUpdating: true,
       lastUpdate: new Date(Date.now() - 5 * 3600 * 1000 - 1)
+    });
+
+    token.save(done);
+  });
+
+  beforeEach(function createToken4(done) {
+    // Create a token, as-if /init/ workflow was properly done
+    token = new Token({
+      anyfetchToken: 'thetoken4',
+      data: {
+        foo: 'bar'
+      },
+      accountName: 'test@anyfetch.com',
+      isUpdating: true,
+      lastUpdate: new Date(Date.now() - 5 * 3600 * 1000 - 1),
+      requireRefresh: true
     });
 
     token.save(done);
@@ -133,6 +171,20 @@ describe("POST /update endpoint", function() {
         documents_per_update: 100
       })
       .expect(429)
+      .end(done);
+  });
+
+  it("should fail with a token which need a refresh", function(done) {
+    var server = AnyFetchProvider.createServer(connectFunctions, workersFile, updateFile, config);
+
+    request(server)
+      .post('/update')
+      .send({
+        access_token: 'thetoken4',
+        api_url: 'http://api.anyfetch.com',
+        documents_per_update: 100
+      })
+      .expect(428)
       .end(done);
   });
 
@@ -273,5 +325,46 @@ describe("POST /update endpoint", function() {
         done();
       });
     });
+  });
+
+  it("should set requireRefresh to true when we send a TokenError", function(done) {
+    var server = AnyFetchProvider.createServer(connectFunctions, __dirname + '/../helpers/workers-token-error.js', __dirname + '/../helpers/update-test.js', config);
+
+    server.token = 'thetoken';
+    server.force = false;
+
+    async.waterfall([
+      function update(cb) {
+        server.usersQueue.on('job.task.failed', function(job, err) {
+          cb(err);
+        });
+
+        server.usersQueue.on('job.update.failed', function(job, err) {
+          cb(err);
+        });
+
+        updateServer(server, null, function(err) {
+          if(err) {
+            return cb(err);
+          }
+
+          server.usersQueue.once('empty', function() {
+            server.usersQueue.removeAllListeners();
+            cb();
+          });
+        });
+      },
+      function retrieveToken(cb) {
+        Token.findOne({anyfetchToken: 'thetoken'}, cb);
+      },
+      function checkToken(token, cb) {
+        if(!token) {
+          return cb(new Error("Can't retrieve token"));
+        }
+
+        token.requireRefresh.should.eql(true);
+        cb();
+      }
+    ], done);
   });
 });

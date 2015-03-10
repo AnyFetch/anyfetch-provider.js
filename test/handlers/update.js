@@ -341,7 +341,7 @@ describe("POST /update endpoint", function() {
           return cb(new Error("Can't retrieve token"));
         }
 
-        token.requireRefresh.should.be.true;
+        token.requireRefresh.should.eql(true);
         cb();
       }
     ], done);

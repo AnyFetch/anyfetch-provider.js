@@ -61,7 +61,7 @@
     "rarity": "^2.1.1",
     "restify": "^2.8.5",
     "restify-bunyan-logger": "^2.0.6",
-    "yaqs": "^1.0.9"
+    "yaqs": "^1.1.0"
   },
   "devDependencies": {
     "coveralls": "^2.11.2",
